@@ -2,6 +2,8 @@ package hhplus.ecommerce.interfaces;
 
 import hhplus.ecommerce.application.common.ErrorResponse;
 import hhplus.ecommerce.application.common.OrderPaymentStatus;
+import hhplus.ecommerce.application.order.OrderDetailRequest;
+import hhplus.ecommerce.application.order.OrderDetailResponse;
 import hhplus.ecommerce.application.order.OrderRequest;
 import hhplus.ecommerce.application.order.OrderResponse;
 import hhplus.ecommerce.application.product.ProductDto;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -39,19 +42,24 @@ public class OrderController {
     @PostMapping("/create")
     public ResponseEntity<Object> createOrder(@RequestBody OrderRequest orderRequest) {
         Long userId = orderRequest.getUserId();
-        Long productId = orderRequest.getProductId();
-        BigDecimal amount = orderRequest.getAmount();
-        BigDecimal productPrice = getProductPrice(productId);
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        List<OrderDetailResponse> orderDetails = new ArrayList<>();
 
-        if(MOCK_USER_POINT.compareTo(amount) < 0) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse("포인트가 부족하여 결제가 불가능합니다."));
+        for (OrderDetailRequest detail : orderRequest.getOrderDetails()) {
+            Long productId = detail.getProductId();
+            int quantity = detail.getQuantity();
+            BigDecimal productPrice = getProductPrice(productId);
+
+            if (getAvailableStock(productId) < quantity) {
+                return ResponseEntity.status(HttpStatus.GONE)
+                        .body(new ErrorResponse("해당 상품의 재고가 부족하여 주문이 불가능합니다."));
+            }
+
+            totalAmount = totalAmount.add(productPrice.multiply(BigDecimal.valueOf(quantity)));
         }
-        
-        // TODO : 도메인에서 로직 처리하도록
-        int availableStock = getAvailableStock(productId);
-        if (availableStock <= 0) {
-            return ResponseEntity.status(HttpStatus.GONE)
-                    .body(new ErrorResponse("해당 상품의 재고가 부족하여 주문이 불가능합니다.")); // 재고 부족
+
+        if (MOCK_USER_POINT.compareTo(totalAmount) < 0) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse("포인트가 부족하여 결제가 불가능합니다."));
         }
 
         Long orderId = 1L;
@@ -60,8 +68,11 @@ public class OrderController {
         OrderPaymentStatus paymentStatus = OrderPaymentStatus.COMPLETED;
         LocalDateTime paymentDate = LocalDateTime.now();
 
-        OrderResponse response = new OrderResponse(orderId, userId, productPrice, orderStatus, createdAt,
-                amount, paymentStatus, paymentDate);
+        for (OrderDetailRequest detail : orderRequest.getOrderDetails()) {
+            orderDetails.add(new OrderDetailResponse(detail.getProductId(), detail.getQuantity(), getProductPrice(detail.getProductId())));
+        }
+
+        OrderResponse response = new OrderResponse(orderId, userId, totalAmount, orderStatus, createdAt, orderDetails, totalAmount, paymentStatus, paymentDate);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

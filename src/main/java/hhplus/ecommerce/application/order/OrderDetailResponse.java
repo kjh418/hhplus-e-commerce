@@ -4,12 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.math.BigDecimal;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderRequest {
-    private Long userId;
-    private List<OrderDetailRequest> orderDetails;
+public class OrderDetailResponse {
+    private Long productId;
+    private int quantity;
+    private BigDecimal price;
 }
