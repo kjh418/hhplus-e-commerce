@@ -13,8 +13,8 @@ public class PopularProductResponse {
     private Long productId;
     private String name;
     private BigDecimal price;
-    private Long totalSales;
-    private Long viewCount;
-    private BigDecimal avgRating;
+    //private Long totalSales;
+    //private Long viewCount;
+    //private BigDecimal avgRating;
     private Long orderCount;
 }

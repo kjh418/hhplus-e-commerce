@@ -60,44 +60,31 @@ public class ProductController {
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    @Operation(summary = "인기 상품 목록 조회 API", description = "조회수, 평점, 주문 수에 따라 정렬된 상위 상품 목록 조회")
+    @Operation(summary = "인기 상품 목록 조회 API", description = "주문 수에 따라 정렬된 상위 상품 목록 조회")
     @ApiResponse(responseCode = "200", description = "인기 상품 목록 조회됨")
     @GetMapping("/popular")
-    public ResponseEntity<List<PopularProductResponse>> findPopularProducts(@RequestParam(defaultValue = "view_count") String sortBy) {
+    public ResponseEntity<List<PopularProductResponse>> findPopularProducts() {
         List<PopularProductResponse> result = popularProducts.stream()
-                .sorted(getComparator(sortBy))
+                .sorted(Comparator.comparing(PopularProductDto::getOrderCount).reversed()) // 주문 수로 정렬
                 .map(popularProduct -> {
-                            ProductDto product = mockProducts.stream()
-                                    .filter(p-> p.getProductId().equals((popularProduct.getProductId())))
-                                    .findFirst()
-                                    .orElse(null);
+                    ProductDto product = mockProducts.stream()
+                            .filter(p -> p.getProductId().equals(popularProduct.getProductId()))
+                            .findFirst()
+                            .orElse(null);
 
-                            if(product != null){
-                                return new PopularProductResponse(
-                                        popularProduct.getProductId(),
-                                        product.getName(),
-                                        product.getPrice(),
-                                        popularProduct.getTotalSales(),
-                                        popularProduct.getViewCount(),
-                                        popularProduct.getAvgRating(),
-                                        popularProduct.getOrderCount()
-                                );
-                            }
-                            return null;
-                        })
+                    if (product != null) {
+                        return new PopularProductResponse(
+                                popularProduct.getProductId(),
+                                product.getName(),
+                                product.getPrice(),
+                                popularProduct.getOrderCount()
+                        );
+                    }
+                    return null;
+                })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(result);
-    }
 
-    private Comparator<PopularProductDto> getComparator(String sortBy) {
-        switch (sortBy) {
-            case "avg_rating":
-                return Comparator.comparing(PopularProductDto::getAvgRating).reversed();
-            case "order_count":
-                return Comparator.comparing(PopularProductDto::getOrderCount).reversed();
-            default:
-                return Comparator.comparing(PopularProductDto::getViewCount).reversed();
-        }
+        return ResponseEntity.ok(result);
     }
 }
