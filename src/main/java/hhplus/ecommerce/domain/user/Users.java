@@ -8,8 +8,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Table(name = "`user`")
-public class User {
+public class Users {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
@@ -23,10 +22,5 @@ public class User {
 
     private LocalDateTime createdAt;
 
-    public User(String name, String address, String phoneNumber) {
-        this.name = name;
-        this.address = address;
-        this.phoneNumber = phoneNumber;
-        this.createdAt = LocalDateTime.now();
-    }
+    protected Users() {}
 }

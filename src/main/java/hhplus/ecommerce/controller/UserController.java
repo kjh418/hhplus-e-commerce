@@ -1,4 +1,4 @@
-package hhplus.ecommerce.interfaces;
+package hhplus.ecommerce.controller;
 
 import hhplus.ecommerce.application.common.ErrorResponse;
 import hhplus.ecommerce.application.user.UserBalanceResponse;
