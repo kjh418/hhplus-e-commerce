@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 
 @Entity
 @Getter
-public class OrderDetail {
+public class OrdersDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderDetailId;
@@ -23,6 +23,5 @@ public class OrderDetail {
 
     private BigDecimal price;
 
-    protected OrderDetail() {
-    }
+    protected OrdersDetail() {}
 }

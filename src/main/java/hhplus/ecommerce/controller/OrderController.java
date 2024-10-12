@@ -1,4 +1,4 @@
-package hhplus.ecommerce.interfaces;
+package hhplus.ecommerce.controller;
 
 import hhplus.ecommerce.application.common.ErrorResponse;
 import hhplus.ecommerce.application.common.OrderPaymentStatus;
@@ -55,10 +55,12 @@ public class OrderController {
                         .body(new ErrorResponse("해당 상품의 재고가 부족하여 주문이 불가능합니다."));
             }
 
+            reduceStock(productId, quantity);
             totalAmount = totalAmount.add(productPrice.multiply(BigDecimal.valueOf(quantity)));
         }
 
         if (MOCK_USER_POINT.compareTo(totalAmount) < 0) {
+            rollbackStock(orderRequest.getOrderDetails());
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorResponse("포인트가 부족하여 결제가 불가능합니다."));
         }
 
@@ -91,5 +93,45 @@ public class OrderController {
                 .map(ProductDto::getStockQuantity)
                 .findFirst()
                 .orElse(0);
+    }
+
+    private void reduceStock(Long productId, int quantity) {
+        for (int i = 0; i < mockProducts.size(); i++) {
+            ProductDto product = mockProducts.get(i);
+            if (product.getProductId().equals(productId)) {
+                ProductDto updatedProduct = new ProductDto(
+                        product.getProductId(),
+                        product.getName(),
+                        product.getPrice(),
+                        product.getStockQuantity() - quantity,
+                        product.getDescription(),
+                        product.getCreatedAt()
+                );
+                mockProducts.set(i, updatedProduct);
+                break;
+            }
+        }
+    }
+
+    private void rollbackStock(List<OrderDetailRequest> orderDetails) {
+        for (OrderDetailRequest detail : orderDetails) {
+            Long productId = detail.getProductId();
+            int quantity = detail.getQuantity();
+            for (int i = 0; i < mockProducts.size(); i++) {
+                ProductDto product = mockProducts.get(i);
+                if (product.getProductId().equals(productId)) {
+                    ProductDto updatedProduct = new ProductDto(
+                            product.getProductId(),
+                            product.getName(),
+                            product.getPrice(),
+                            product.getStockQuantity() + quantity,
+                            product.getDescription(),
+                            product.getCreatedAt()
+                    );
+                    mockProducts.set(i, updatedProduct);
+                    break;
+                }
+            }
+        }
     }
 }

@@ -8,8 +8,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Table(name = "`order`")
-public class Order {
+public class Orders {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderId;
@@ -22,6 +21,5 @@ public class Order {
 
     private LocalDateTime createdAt;
 
-    protected Order() {
-    }
+    protected Orders() {}
 }
