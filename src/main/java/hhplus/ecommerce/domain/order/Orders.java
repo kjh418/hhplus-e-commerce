@@ -1,5 +1,6 @@
 package hhplus.ecommerce.domain.order;
 
+import hhplus.ecommerce.application.common.OrderPaymentStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +20,8 @@ public class Orders {
 
     private BigDecimal totalAmount;
 
-    @Convert(converter = OrderStatusConverter.class)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private OrderPaymentStatus status;
 
     private LocalDateTime createdAt;
 }
