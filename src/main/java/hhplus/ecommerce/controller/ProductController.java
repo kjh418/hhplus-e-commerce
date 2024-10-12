@@ -1,4 +1,4 @@
-package hhplus.ecommerce.interfaces;
+package hhplus.ecommerce.controller;
 
 import hhplus.ecommerce.application.product.PopularProductDto;
 import hhplus.ecommerce.application.product.PopularProductResponse;

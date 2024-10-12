@@ -23,7 +23,5 @@ public class Product {
 
     private LocalDateTime createdAt;
 
-    // TODO : 재고가 요청 개수보다 작을 경우 '재고가 부족합니다' 처리하기
-
     public Product() {}
 }
