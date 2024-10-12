@@ -1,15 +1,14 @@
 package hhplus.ecommerce.domain.cart;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@RequiredArgsConstructor
 public class CartItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,11 +20,10 @@ public class CartItem {
 
     private int quantity;
 
-    private String options;
+    @Convert(converter = OptionConverter.class)
+    private Option options;
 
     private boolean isSelected;
 
     private LocalDateTime addedAt;
-
-    protected CartItem() {}
 }
