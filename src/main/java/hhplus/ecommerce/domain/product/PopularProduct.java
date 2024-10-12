@@ -1,16 +1,15 @@
 package hhplus.ecommerce.domain.product;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@RequiredArgsConstructor
 public class PopularProduct {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,6 +26,4 @@ public class PopularProduct {
     private int orderCount;
 
     private LocalDateTime lastUpdated;
-
-    protected PopularProduct() {}
 }
