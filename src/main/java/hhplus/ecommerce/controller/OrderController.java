@@ -25,13 +25,13 @@ public class OrderController {
 
     private static final BigDecimal MOCK_USER_POINT = new BigDecimal("100000");
 
-    private final List<ProductDto> mockProducts = List.of(
+    private final List<ProductDto> mockProducts = new ArrayList<>(List.of(
             new ProductDto(100L, "긴팔티", new BigDecimal("20000"), 50, "초가을에 입기 좋은 옷", LocalDateTime.now()),
             new ProductDto(200L, "청바지", new BigDecimal("50000"), 0, "사계절 내내 입기 좋은 바지",LocalDateTime.now()),
             new ProductDto(300L, "후드티", new BigDecimal("70000"), 20, "따뜻하고 편안한 후드티", LocalDateTime.now()),
             new ProductDto(400L, "맨투맨", new BigDecimal("59000"), 15, "캐주얼하게 입기 좋은 맨투맨", LocalDateTime.now()),
             new ProductDto(500L, "슬랙스", new BigDecimal("49000"), 30, "편안한 슬랙스 바지", LocalDateTime.now())
-    );
+    ));
 
     @Operation(summary = "주문 및 결제 API", description = "상품을 주문 및 결제하는 API")
     @ApiResponses(value = {
