@@ -26,7 +26,7 @@ public class ProductController {
 
     private final List<ProductDto> mockProducts = List.of(
             new ProductDto(100L, "긴팔티", new BigDecimal("20000"), 50, "초가을에 입기 좋은 옷", LocalDateTime.now()),
-            new ProductDto(200L, "청바지", new BigDecimal("50000"), 10, "사계절 내내 입기 좋은 바지",LocalDateTime.now()),
+            new ProductDto(200L, "청바지", new BigDecimal("50000"), 10, "사계절 내내 입기 좋은 바지", LocalDateTime.now()),
             new ProductDto(300L, "후드티", new BigDecimal("70000"), 20, "따뜻하고 편안한 후드티", LocalDateTime.now()),
             new ProductDto(400L, "맨투맨", new BigDecimal("59000"), 15, "캐주얼하게 입기 좋은 맨투맨", LocalDateTime.now()),
             new ProductDto(500L, "슬랙스", new BigDecimal("49000"), 30, "편안한 슬랙스 바지", LocalDateTime.now())
@@ -40,7 +40,7 @@ public class ProductController {
             new PopularProductDto(5L, 500L, 350L, 350L, new BigDecimal("4.7"), 110L, LocalDateTime.parse("2023-10-05 16:10:05", formatter))
     );
 
-    @Operation(summary="상품 목록 조회 API", description = "모든 상품 목록 조회")
+    @Operation(summary = "상품 목록 조회 API", description = "모든 상품 목록 조회")
     @GetMapping
     public ResponseEntity<List<ProductDto>> findAll() {
         return ResponseEntity.ok(mockProducts);
@@ -48,8 +48,8 @@ public class ProductController {
 
     @Operation(summary = "상품 상세 조회 API", description = "상품 ID로 해당 상품의 상세 정보 조회")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "상품 상세정보 조회됨"),
-        @ApiResponse(responseCode = "404", description = "상품을 찾을 수 없음")
+            @ApiResponse(responseCode = "200", description = "상품 상세정보 조회됨"),
+            @ApiResponse(responseCode = "404", description = "상품을 찾을 수 없음")
     })
     @GetMapping("/{productId}")
     public ResponseEntity<ProductDto> findById(@PathVariable Long productId) {
@@ -65,7 +65,7 @@ public class ProductController {
     @GetMapping("/popular")
     public ResponseEntity<List<PopularProductResponse>> findPopularProducts() {
         List<PopularProductResponse> result = popularProducts.stream()
-                .sorted(Comparator.comparing(PopularProductDto::getOrderCount).reversed()) // 주문 수로 정렬
+                .sorted(Comparator.comparing(PopularProductDto::getOrderCount).reversed())
                 .map(popularProduct -> {
                     ProductDto product = mockProducts.stream()
                             .filter(p -> p.getProductId().equals(popularProduct.getProductId()))
