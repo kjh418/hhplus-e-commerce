@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class CartItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long cartItemId;
+    private Long id;
 
     private Long cartId;
 
@@ -27,6 +27,5 @@ public class CartItem {
 
     private LocalDateTime addedAt;
 
-    protected CartItem() {
-    }
+    protected CartItem() {}
 }

@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class PointHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long pointHistoryId;
+    private Long id;
 
     private Long userId;
 
@@ -26,6 +26,5 @@ public class PointHistory {
 
     private LocalDateTime createdAt;
 
-    protected PointHistory() {
-    }
+    protected PointHistory() {}
 }

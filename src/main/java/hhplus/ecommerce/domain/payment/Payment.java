@@ -15,7 +15,7 @@ public class Payment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long paymentId;
+    private Long id;
 
     private Long orderId;
 
@@ -25,6 +25,5 @@ public class Payment {
 
     private LocalDateTime createdAt;
 
-    protected Payment() {
-    }
+    protected Payment() {}
 }

@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class PopularProduct {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long popularProductId;
+    private Long id;
 
     private Long productId;
 
