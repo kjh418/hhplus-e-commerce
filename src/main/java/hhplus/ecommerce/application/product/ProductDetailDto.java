@@ -5,16 +5,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductDto {
+public class ProductDetailDto {
     private Long productId;
     private String name;
     private BigDecimal price;
     private int stockQuantity;
     private String description;
-    private LocalDateTime createdAt;
 }
