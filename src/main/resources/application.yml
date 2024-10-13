@@ -1,26 +1,22 @@
 spring:
   application:
     name: hhplus-ecommerce
-datasource:
-  url: "jdbc:h2:mem:hhplus-ecommerce;MODE=PostgreSQL;NON_KEYWORDS=USER"
-  username: "sa"
-  password: ""
-  driver-class-name: org.h2.Driver
-jpa:
-  hibernate:
-    # Hibernate가 데이터베이스 스키마에 영향을 주지 않도록 설정 (스키마 변경을 자동으로 수행하지 않음).
-    ddl-auto: none
-  properties:
+  datasource:
+    url: "jdbc:h2:~/hhplus-ecommerce;MODE=MYSQL;NON_KEYWORDS=USER"
+    username: "sa"
+    password: ""
+    driver-class-name: org.h2.Driver
+  jpa:
     hibernate:
-      # 프로그램 시작 시 쿼리문 출력
-      show_sql: true
-      # 포맷된 형태로 SQL 출력
-      format_sql: true
-      dialect: org.hibernate.dialect.PostgreSQLDialect
-h2:
-  console:
-    enabled: true
-    path: /h2-console
+      ddl-auto: none
+      properties:
+        hibernate:
+          show_sql: true
+          format_sql: true
+          dialect: org.hibernate.dialect.MySQLDialect
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
     settings:
-      # 브라우저에서 접근 가능하도록
       web-allow-others: true
