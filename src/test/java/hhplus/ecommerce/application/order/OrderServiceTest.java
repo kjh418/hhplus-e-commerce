@@ -1,9 +1,10 @@
 package hhplus.ecommerce.application.order;
 
-import hhplus.ecommerce.application.common.OrderPaymentStatus;
 import hhplus.ecommerce.application.user.UserBalanceResponse;
 import hhplus.ecommerce.application.user.UserDto;
+import hhplus.ecommerce.domain.order.OrderStatus;
 import hhplus.ecommerce.domain.order.Orders;
+import hhplus.ecommerce.domain.payment.PaymentStatus;
 import hhplus.ecommerce.domain.product.Product;
 import hhplus.ecommerce.domain.user.Users;
 import hhplus.ecommerce.infrastructure.repository.OrdersRepository;
@@ -81,12 +82,14 @@ class OrderServiceTest {
 
         Users user = new Users(1L, "홍길동", "서울시 강남구", "01012341234", LocalDateTime.now());
         when(usersRepository.findById(1L)).thenReturn(Optional.of(user));
-        
+
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
 
         IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
             orderService.createOrder(request);
         });
+
+        assertEquals("재고가 부족합니다.", exception.getMessage());
     }
 
     @Test
@@ -105,13 +108,13 @@ class OrderServiceTest {
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
         when(usersRepository.findById(1L)).thenReturn(Optional.of(user));
 
-        Orders order = new Orders(1L, user.getId(), new BigDecimal("20000"), OrderPaymentStatus.PENDING, LocalDateTime.now());
+        Orders order = new Orders(1L, user.getId(), new BigDecimal("20000"), OrderStatus.PENDING, LocalDateTime.now());
         when(ordersRepository.save(any(Orders.class))).thenReturn(order);
 
         OrderResponse orderResponse = orderService.createOrder(request);
 
         assertNotNull(orderResponse);
-        assertEquals(OrderPaymentStatus.PENDING, orderResponse.getPaymentStatus());
+        assertEquals(PaymentStatus.PENDING, orderResponse.getPaymentStatus());
         assertEquals(new BigDecimal("20000"), orderResponse.getTotalAmount());
         assertEquals(new BigDecimal("50000"), userBalance.getBalance());
         assertEquals(user.getId(), userBalance.getUser().getUserId());

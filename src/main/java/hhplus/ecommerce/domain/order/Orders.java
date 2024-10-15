@@ -1,6 +1,5 @@
 package hhplus.ecommerce.domain.order;
 
-import hhplus.ecommerce.application.common.OrderPaymentStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,11 +22,11 @@ public class Orders {
     private BigDecimal totalAmount;
 
     @Enumerated(EnumType.STRING)
-    private OrderPaymentStatus status;
+    private OrderStatus status;
 
     private LocalDateTime createdAt;
 
-    public Orders(Long userId, BigDecimal totalAmount, OrderPaymentStatus status, LocalDateTime createdAt) {
+    public Orders(Long userId, BigDecimal totalAmount, OrderStatus status, LocalDateTime createdAt) {
         this.userId = userId;
         this.totalAmount = totalAmount;
         this.status = status;

@@ -1,7 +1,8 @@
 package hhplus.ecommerce.application.order;
 
-import hhplus.ecommerce.application.common.OrderPaymentStatus;
+import hhplus.ecommerce.domain.order.OrderStatus;
 import hhplus.ecommerce.domain.order.Orders;
+import hhplus.ecommerce.domain.payment.PaymentStatus;
 import hhplus.ecommerce.domain.product.Product;
 import hhplus.ecommerce.domain.user.Users;
 import hhplus.ecommerce.infrastructure.repository.OrdersRepository;
@@ -28,17 +29,26 @@ public class OrderService {
     @Transactional
     public OrderResponse createOrder(OrderRequest request) {
         // 사용자 정보 조회
-        Users user = usersRepository.findById(request.getUserId())
-                .orElseThrow(() -> new EntityNotFoundException("사용자가 존재하지 않습니다."));
+        Users user = findUserById(request.getUserId());
 
-        // 주문 총액 계산 및 상품 재고 확인
-        BigDecimal totalAmount = BigDecimal.ZERO;
+        // 주문 생성 및 상세 정보 처리
         List<OrderDetailResponse> orderDetailResponses = new ArrayList<>();
+        BigDecimal totalAmount = calculateTotalAmount(request.getOrderDetails(), orderDetailResponses);
 
-        Orders orders = new Orders(user.getId(), totalAmount, OrderPaymentStatus.PENDING, LocalDateTime.now());
-        orderRepository.save(orders);
+        Orders orders = saveOrder(user.getId(), totalAmount);
 
-        for (OrderDetailRequest detailRequest : request.getOrderDetails()) {
+        return buildOrderResponse(orders, orderDetailResponses);
+    }
+
+    private Users findUserById(Long userId) {
+        return usersRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("사용자가 존재하지 않습니다."));
+    }
+
+    private BigDecimal calculateTotalAmount(List<OrderDetailRequest> orderDetails, List<OrderDetailResponse> orderDetailResponses) {
+        BigDecimal totalAmount = BigDecimal.ZERO;
+
+        for (OrderDetailRequest detailRequest : orderDetails) {
             Product product = productRepository.findById(detailRequest.getProductId())
                     .orElseThrow(() -> new EntityNotFoundException("상품이 존재하지 않습니다."));
 
@@ -58,15 +68,24 @@ public class OrderService {
             productRepository.save(product);
         }
 
+        return totalAmount;
+    }
+
+    private Orders saveOrder(Long userId, BigDecimal totalAmount) {
+        Orders orders = new Orders(userId, totalAmount, OrderStatus.PENDING, LocalDateTime.now());
+        return orderRepository.save(orders);
+    }
+
+    private OrderResponse buildOrderResponse(Orders orders, List<OrderDetailResponse> orderDetailResponses) {
         return new OrderResponse(
-                null,
-                user.getId(),
-                totalAmount,
-                OrderPaymentStatus.PENDING,
-                LocalDateTime.now(),
+                orders.getId(),
+                orders.getUserId(),
+                orders.getTotalAmount(),
+                orders.getStatus(),
+                orders.getCreatedAt(),
                 orderDetailResponses,
-                totalAmount,
-                OrderPaymentStatus.PENDING,
+                orders.getTotalAmount(),
+                PaymentStatus.PENDING,
                 LocalDateTime.now(),
                 null
         );
