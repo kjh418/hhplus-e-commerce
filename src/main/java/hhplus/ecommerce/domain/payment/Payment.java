@@ -1,15 +1,18 @@
 package hhplus.ecommerce.domain.payment;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 public class Payment {
 
     @Id
@@ -20,7 +23,15 @@ public class Payment {
 
     private BigDecimal amount;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus status;
 
+    @CreationTimestamp
     private LocalDateTime createdAt;
+
+    public Payment(Long orderId, BigDecimal amount, PaymentStatus status) {
+        this.orderId = orderId;
+        this.amount = amount;
+        this.status = status;
+    }
 }

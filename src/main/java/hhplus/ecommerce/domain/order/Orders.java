@@ -25,6 +25,12 @@ public class Orders {
     private OrderStatus status;
 
     private LocalDateTime createdAt;
+    
+    public void completeOrder() {
+        if (this.status != OrderStatus.COMPLETED) {
+            this.status = OrderStatus.COMPLETED;
+        }
+    }
 
     public Orders(Long userId, BigDecimal totalAmount, OrderStatus status, LocalDateTime createdAt) {
         this.userId = userId;
