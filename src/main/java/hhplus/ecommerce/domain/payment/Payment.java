@@ -28,10 +28,4 @@ public class Payment {
 
     @CreationTimestamp
     private LocalDateTime createdAt;
-
-    public Payment(Long orderId, BigDecimal amount, PaymentStatus status) {
-        this.orderId = orderId;
-        this.amount = amount;
-        this.status = status;
-    }
 }

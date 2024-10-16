@@ -9,6 +9,7 @@ import hhplus.ecommerce.infrastructure.repository.OrdersRepository;
 import hhplus.ecommerce.infrastructure.repository.PaymentRepository;
 import hhplus.ecommerce.infrastructure.repository.UserPointRepository;
 import hhplus.ecommerce.infrastructure.repository.UsersRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -41,15 +42,23 @@ class PaymentServiceTest {
     @InjectMocks
     private PaymentService paymentService;
 
+    private Long userId;
+    private Long orderId;
+    private BigDecimal paymentAmount;
+    private Users user;
+    private Orders order;
+
+    @BeforeEach
+    void setUp() {
+        userId = 1L;
+        orderId = 1L;
+        paymentAmount = new BigDecimal("10000");
+        user = new Users(userId, "홍길동", "서울시 강남구", "01012341234", LocalDateTime.now());
+        order = new Orders(orderId, userId, paymentAmount, OrderStatus.PENDING, LocalDateTime.now());
+    }
+
     @Test
     void 포인트_부족으로_결제_실패_시_결제_상태_실패_처리_후_이력_저장() {
-        Long userId = 1L;
-        Long orderId = 1L;
-        BigDecimal paymentAmount = new BigDecimal("10000");
-
-        Users user = new Users(userId, "홍길동", "서울시 강남구", "01012341234", LocalDateTime.now());
-        Orders order = new Orders(orderId, userId, new BigDecimal("10000"), OrderStatus.PENDING, LocalDateTime.now());
-
         when(usersRepository.findById(userId)).thenReturn(Optional.of(user));
         when(userPointRepository.findCurrentPointsByUserId(userId)).thenReturn(new BigDecimal("5000"));
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
@@ -65,12 +74,7 @@ class PaymentServiceTest {
 
     @Test
     void 존재하지_않는_주문일_경우_예외_처리() {
-        Long userId = 1L;
-        Long orderId = 1L;
-        BigDecimal paymentAmount = new BigDecimal("10000");
-        Users user = new Users(userId, "홍길동", "서울시 강남구", "01012341234", LocalDateTime.now());
         when(usersRepository.findById(userId)).thenReturn(Optional.of(user));
-
         when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> {
@@ -82,10 +86,6 @@ class PaymentServiceTest {
 
     @Test
     void 존재하지_않는_사용자일_경우_예외_처리() {
-        Long userId = 1L;
-        Long orderId = 1L;
-        BigDecimal paymentAmount = new BigDecimal("10000");
-
         when(usersRepository.findById(userId)).thenReturn(Optional.empty());
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> {
@@ -97,12 +97,7 @@ class PaymentServiceTest {
 
     @Test
     void 이미_완료된_결제인_경우_예외_처리() {
-        Long userId = 1L;
-        Long orderId = 1L;
-        BigDecimal paymentAmount = new BigDecimal("10000");
-
-        Orders order = new Orders(orderId, userId, new BigDecimal("10000"), OrderStatus.COMPLETED, LocalDateTime.now());
-        Users user = new Users(userId, "홍길동", "서울시 강남구", "01012341234", LocalDateTime.now());
+        order = new Orders(orderId, userId, new BigDecimal("10000"), OrderStatus.COMPLETED, LocalDateTime.now());
         when(usersRepository.findById(userId)).thenReturn(Optional.of(user));
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
 
@@ -115,12 +110,7 @@ class PaymentServiceTest {
 
     @Test
     void 결제하려는_금액과_주문_금액이_일치하지_않는_경우_예외_처리() {
-        Long userId = 1L;
-        Long orderId = 1L;
         BigDecimal paymentAmount = new BigDecimal("5000");
-
-        Orders order = new Orders(orderId, userId, new BigDecimal("10000"), OrderStatus.PENDING, LocalDateTime.now());
-        Users user = new Users(userId, "홍길동", "서울시 강남구", "01012341234", LocalDateTime.now());
         when(usersRepository.findById(userId)).thenReturn(Optional.of(user));
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
 
