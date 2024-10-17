@@ -9,20 +9,26 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PointAccount {
+public class PaymentHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private Long userId;
-    private BigDecimal balance; // 포인트 잔액
+    private BigDecimal points;
+    private PointType type;
+    private LocalDateTime createdAt;
 
-    public void updateBalance(BigDecimal newBalance) {
-        this.balance = newBalance;
+    public PaymentHistory(Long userId, BigDecimal points, PointType type, LocalDateTime createdAt) {
+        this.userId = userId;
+        this.points = points;
+        this.type = type;
+        this.createdAt = createdAt;
     }
 }
