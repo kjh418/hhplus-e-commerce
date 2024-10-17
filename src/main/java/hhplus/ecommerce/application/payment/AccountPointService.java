@@ -25,44 +25,25 @@ public class AccountPointService {
     private final PointAccountRepository pointAccountRepository;
     private final PaymentHistoryRepository paymentHistoryRepository;
 
+    // 잔액 조회
     public UserBalanceResponse getBalance(Long userId) {
-        Users user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("사용자가 존재하지 않습니다."));
+        Users user = findUserById(userId);
+        PointAccount account = findOrCreatePointAccount(userId);
 
-        PointAccount account = pointAccountRepository.findByUserId(userId)
-                .orElseGet(() -> {
-                    PointAccount newAccount = new PointAccount(null, userId, BigDecimal.ZERO);
-                    pointAccountRepository.save(newAccount);
-                    return newAccount;
-                });
-
-        return new UserBalanceResponse(
-                new UserDto(user.getId(), user.getName(), user.getAddress(), user.getPhoneNumber(), user.getCreatedAt()),
-                account.getBalance()
-        );
+        return createUserBalanceResponse(user, account);
     }
 
+    // 포인트 충전
     public UserBalanceResponse chargePoints(Long userId, BigDecimal amount) {
-        Users user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("사용자가 존재하지 않습니다."));
+        Users user = findUserById(userId);
+        validateChargeAmount(amount);
 
-        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("충전할 금액은 0보다 커야 합니다.");
-        }
-
-        if (amount.compareTo(MAX_CHARGE_AMOUNT) > 0) {
-            throw new IllegalArgumentException("한 번에 충전할 수 있는 최대 금액은 20만원입니다.");
-        }
-
-        PointAccount account = pointAccountRepository.findByUserId(userId)
-                .orElse(new PointAccount(null, userId, BigDecimal.ZERO));
-
-        BigDecimal newBalance = account.getBalance().add(amount);
+        PointAccount account = findOrCreatePointAccount(userId);
+        BigDecimal newBalance = updateBalance(account, amount);
         account.updateBalance(newBalance);
         pointAccountRepository.save(account);
 
-        PaymentHistory history = new PaymentHistory(userId, amount, PointType.CHARGE, LocalDateTime.now());
-        paymentHistoryRepository.save(history);
+        savePaymentHistory(userId, amount);
 
         return new UserBalanceResponse(
                 new UserDto(user.getId(), user.getName(), user.getAddress(), user.getPhoneNumber(), user.getCreatedAt()),
@@ -70,8 +51,55 @@ public class AccountPointService {
         );
     }
 
+    // 포인트 이력 조회
     public List<PaymentHistory> getPaymentHistory(Long userId) {
         return paymentHistoryRepository.findByUserId(userId);
+    }
+
+    private Users findUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("사용자가 존재하지 않습니다."));
+    }
+
+    private PointAccount findOrCreatePointAccount(Long userId) {
+        return pointAccountRepository.findByUserId(userId)
+                .orElseGet(() -> createPointAccount(userId));
+    }
+
+    private PointAccount createPointAccount(Long userId) {
+        PointAccount newAccount = new PointAccount(null, userId, BigDecimal.ZERO);
+        pointAccountRepository.save(newAccount);
+        return newAccount;
+    }
+
+    private void validateChargeAmount(BigDecimal amount) {
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("충전할 금액은 0보다 커야 합니다.");
+        }
+        if (amount.compareTo(MAX_CHARGE_AMOUNT) > 0) {
+            throw new IllegalArgumentException("한 번에 충전할 수 있는 최대 금액은 20만원입니다.");
+        }
+    }
+
+    // 잔액 업데이트
+    private BigDecimal updateBalance(PointAccount account, BigDecimal amount) {
+        BigDecimal newBalance = account.getBalance().add(amount);
+        account.updateBalance(newBalance);
+        pointAccountRepository.save(account);
+        return newBalance;
+    }
+
+    // 이력 저장
+    private void savePaymentHistory(Long userId, BigDecimal amount) {
+        PaymentHistory history = new PaymentHistory(userId, amount, PointType.CHARGE, LocalDateTime.now());
+        paymentHistoryRepository.save(history);
+    }
+
+    private UserBalanceResponse createUserBalanceResponse(Users user, PointAccount account) {
+        return new UserBalanceResponse(
+                new UserDto(user.getId(), user.getName(), user.getAddress(), user.getPhoneNumber(), user.getCreatedAt()),
+                account.getBalance()
+        );
     }
 
     public AccountPointService(UsersRepository userRepository, PointAccountRepository pointAccountRepository, PaymentHistoryRepository paymentHistoryRepository) {
@@ -79,5 +107,4 @@ public class AccountPointService {
         this.pointAccountRepository = pointAccountRepository;
         this.paymentHistoryRepository = paymentHistoryRepository;
     }
-
 }

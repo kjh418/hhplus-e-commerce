@@ -7,6 +7,7 @@ import hhplus.ecommerce.domain.user.Users;
 import hhplus.ecommerce.infrastructure.repository.PaymentHistoryRepository;
 import hhplus.ecommerce.infrastructure.repository.PointAccountRepository;
 import hhplus.ecommerce.infrastructure.repository.UsersRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -39,11 +40,17 @@ class AccountPointServiceTest {
     @Mock
     private PaymentHistoryRepository paymentHistoryRepository;
 
+    private Long userId;
+    private Users user;
+
+    @BeforeEach
+    void setUp() {
+        userId = 1L;
+        user = new Users(userId, "홍길동", "서울시 강남구", "01012341234", LocalDateTime.now());
+    }
+
     @Test
     void 포인트_이력이_없는_경우_잔액_0으로_초기화() {
-        Long userId = 1L;
-        Users user = new Users(userId, "홍길동", "서울시 강남구", "01012341234", LocalDateTime.now());
-
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(pointAccountRepository.findByUserId(userId)).thenReturn(Optional.empty());
 
@@ -55,8 +62,6 @@ class AccountPointServiceTest {
 
     @Test
     void 포인트_잔액_조회_성공() {
-        Long userId = 1L;
-        Users user = new Users(userId, "홍길동", "서울시 강남구", "01012341234", LocalDateTime.now());
         BigDecimal balance = new BigDecimal("10000");
         PointAccount pointAccount = new PointAccount(1L, userId, balance);
 
@@ -72,7 +77,6 @@ class AccountPointServiceTest {
 
     @Test
     void 포인트_충전_시_사용자가_존재하지_않을_때_예외_처리() {
-        Long userId = 1L;
         BigDecimal chargeAmount = new BigDecimal("5000");
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
@@ -86,7 +90,6 @@ class AccountPointServiceTest {
 
     @Test
     void 포인트_충전_금액이_0원_이하일_때_예외_처리() {
-        Long userId = 1L;
         BigDecimal chargeAmount = new BigDecimal("-5000");
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
@@ -98,7 +101,6 @@ class AccountPointServiceTest {
 
     @Test
     void 최대_충전_금액_초과_시_예외_처리() {
-        Long userId = 1L;
         BigDecimal chargeAmount = new BigDecimal("300000");
         PointAccount account = new PointAccount(1L, userId, new BigDecimal("10000"));
 
@@ -111,7 +113,6 @@ class AccountPointServiceTest {
 
     @Test
     void 포인트_충전_성공() {
-        Long userId = 1L;
         BigDecimal chargeAmount = new BigDecimal("5000");
 
         Users user = new Users(userId, "홍길동", "서울시 강남구", "01012341234", LocalDateTime.now());
@@ -120,7 +121,7 @@ class AccountPointServiceTest {
         when(pointAccountRepository.findByUserId(userId)).thenReturn(Optional.empty());
 
         UserBalanceResponse result = accountPointService.chargePoints(userId, chargeAmount);
-        
+
         assertEquals(chargeAmount, result.getBalance());
         verify(pointAccountRepository).save(any(PointAccount.class));
         verify(paymentHistoryRepository).save(any(PaymentHistory.class));
