@@ -1,27 +1,28 @@
-package hhplus.ecommerce.domain.cart;
+package hhplus.ecommerce.domain.payment;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
-@Getter
 @Entity
+@Getter
 @NoArgsConstructor
-public class Cart {
+@AllArgsConstructor
+public class PointAccount {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private Long userId;
-    private LocalDateTime createdAt;
+    private BigDecimal balance; // 포인트 잔액
 
-    public Cart(Long userId) {
-        this.userId = userId;
-        this.createdAt = LocalDateTime.now();
+    public void updateBalance(BigDecimal newBalance) {
+        this.balance = newBalance;
     }
 }

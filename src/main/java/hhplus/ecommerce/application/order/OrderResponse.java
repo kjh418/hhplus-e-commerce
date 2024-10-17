@@ -1,6 +1,8 @@
 package hhplus.ecommerce.application.order;
 
-import hhplus.ecommerce.application.common.OrderPaymentStatus;
+import hhplus.ecommerce.application.user.UserBalanceResponse;
+import hhplus.ecommerce.domain.order.OrderStatus;
+import hhplus.ecommerce.domain.payment.PaymentStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,11 +18,13 @@ public class OrderResponse {
     private Long orderId;
     private Long userId;
     private BigDecimal totalAmount;
-    private OrderPaymentStatus orderStatus;
+    private OrderStatus orderStatus; // 주문 상태
     private LocalDateTime createdAt;
     private List<OrderDetailResponse> orderDetails;
 
     private BigDecimal paymentAmount;
-    private OrderPaymentStatus paymentStatus;
+    private PaymentStatus paymentStatus; // 결제 상태
     private LocalDateTime paymentDate;
+
+    private UserBalanceResponse userBalanceResponse;
 }
