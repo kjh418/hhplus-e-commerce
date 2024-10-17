@@ -42,11 +42,10 @@ public class PaymentService {
         BigDecimal currentPoints = userPointRepository.findCurrentPointsByUserId(user.getId());
 
         // 포인트 잔액 확인, 결제 처리
-        return handlePayment(userId, order, paymentAmount);
+        return handlePayment(userId, order, paymentAmount, currentPoints);
     }
 
-    private PaymentResponse handlePayment(Long userId, Orders order, BigDecimal paymentAmount) {
-        BigDecimal currentPoints = userPointRepository.findCurrentPointsByUserId(userId);
+    private PaymentResponse handlePayment(Long userId, Orders order, BigDecimal paymentAmount, BigDecimal currentPoints) {
 
         if (currentPoints == null) {
             throw new IllegalStateException("잔액이 존재하지 않습니다.");
