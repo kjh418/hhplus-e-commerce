@@ -11,6 +11,7 @@ import hhplus.ecommerce.infrastructure.repository.UserPointRepository;
 import hhplus.ecommerce.infrastructure.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -25,6 +26,7 @@ public class PaymentService {
     private final UserPointRepository userPointRepository;
     private final OrdersRepository orderRepository;
 
+    @Transactional
     public PaymentResponse processPayment(Long orderId, Long userId, BigDecimal paymentAmount) {
 
         // 사용자 확인
