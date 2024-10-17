@@ -9,7 +9,9 @@ import hhplus.ecommerce.domain.user.Users;
 import hhplus.ecommerce.infrastructure.repository.PaymentHistoryRepository;
 import hhplus.ecommerce.infrastructure.repository.PointAccountRepository;
 import hhplus.ecommerce.infrastructure.repository.UsersRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -17,6 +19,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
+@RequiredArgsConstructor
 public class AccountPointService {
 
     private static final BigDecimal MAX_CHARGE_AMOUNT = new BigDecimal("200000");
@@ -26,6 +29,7 @@ public class AccountPointService {
     private final PaymentHistoryRepository paymentHistoryRepository;
 
     // 잔액 조회
+    @Transactional
     public UserBalanceResponse getBalance(Long userId) {
         Users user = findUserById(userId);
         PointAccount account = findOrCreatePointAccount(userId);
@@ -34,6 +38,7 @@ public class AccountPointService {
     }
 
     // 포인트 충전
+    @Transactional
     public UserBalanceResponse chargePoints(Long userId, BigDecimal amount) {
         Users user = findUserById(userId);
         validateChargeAmount(amount);
@@ -100,11 +105,5 @@ public class AccountPointService {
                 new UserDto(user.getId(), user.getName(), user.getAddress(), user.getPhoneNumber(), user.getCreatedAt()),
                 account.getBalance()
         );
-    }
-
-    public AccountPointService(UsersRepository userRepository, PointAccountRepository pointAccountRepository, PaymentHistoryRepository paymentHistoryRepository) {
-        this.userRepository = userRepository;
-        this.pointAccountRepository = pointAccountRepository;
-        this.paymentHistoryRepository = paymentHistoryRepository;
     }
 }
