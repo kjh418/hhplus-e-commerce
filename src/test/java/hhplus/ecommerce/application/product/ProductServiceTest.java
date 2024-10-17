@@ -33,8 +33,8 @@ class ProductServiceTest {
 
     @BeforeEach
     void setUp() {
-        product1 = new Product(1L, "청바지", "사계절 내내 입을 수 있는 청바지", new BigDecimal("50000"), 10, LocalDateTime.now());
-        product2 = new Product(2L, "맨투맨", "편안한 맨투맨", new BigDecimal("39000"), 15, LocalDateTime.now());
+        product1 = new Product(1L, "청바지", "사계절 내내 입을 수 있는 청바지", new BigDecimal("50000"), 10, LocalDateTime.now(), 15);
+        product2 = new Product(2L, "맨투맨", "편안한 맨투맨", new BigDecimal("39000"), 15, LocalDateTime.now(), 20);
 
         productService = new ProductService(productRepository);
     }
@@ -77,5 +77,20 @@ class ProductServiceTest {
         assertThat(productDetail.getPrice()).isEqualTo(new BigDecimal("50000"));
         assertThat(productDetail.getStockQuantity()).isEqualTo(10);
         assertThat(productDetail.getDescription()).isEqualTo("사계절 내내 입을 수 있는 청바지");
+    }
+
+    @Test
+    void 상위_5개_상품_조회_성공() {
+        LocalDateTime threeDaysAgo = LocalDateTime.now().minusDays(3);
+        Product product1 = new Product(1L, "청바지", "사계절 내내 입을 수 있는 청바지", new BigDecimal("50000"), 10, LocalDateTime.now(), 15);
+        Product product2 = new Product(2L, "맨투맨", "편안한 맨투맨", new BigDecimal("39000"), 15, LocalDateTime.now(), 20);
+
+        when(productRepository.findTop5BySales(threeDaysAgo)).thenReturn(List.of(product1, product2));
+
+        List<Top5ProductResponse> result = productService.getTop5Products();
+
+        assertEquals(2, result.size());
+        assertEquals("청바지", result.get(0).getName());
+        assertEquals(15, result.get(0).getTotalSales());
     }
 }

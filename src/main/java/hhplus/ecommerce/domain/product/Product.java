@@ -30,10 +30,13 @@ public class Product {
 
     private LocalDateTime createdAt;
 
+    private int totalSales;
+
     public void reduceStock(int quantity) {
         if (this.stockQuantity < quantity) {
             throw new IllegalStateException("재고가 부족합니다.");
         }
         this.stockQuantity -= quantity;
+        //this.totalSales += quantity;
     }
 }

@@ -3,6 +3,7 @@ package hhplus.ecommerce.controller;
 import hhplus.ecommerce.application.product.ProductDetailDto;
 import hhplus.ecommerce.application.product.ProductListDto;
 import hhplus.ecommerce.application.product.ProductService;
+import hhplus.ecommerce.application.product.Top5ProductResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,6 +28,12 @@ public class ProductController {
     public ResponseEntity<ProductDetailDto> getProductDetail(@PathVariable Long id) {
         ProductDetailDto product = productService.getProductDetails(id);
         return ResponseEntity.ok(product);
+    }
+
+    @GetMapping("/top5")
+    public ResponseEntity<List<Top5ProductResponse>> getTop5Products() {
+        List<Top5ProductResponse> topProducts = productService.getTop5Products();
+        return ResponseEntity.ok(topProducts);
     }
 
     public ProductController(ProductService productService) {
