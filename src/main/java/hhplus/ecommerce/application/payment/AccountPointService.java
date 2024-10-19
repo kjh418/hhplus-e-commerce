@@ -94,9 +94,14 @@ public class AccountPointService {
         return newBalance;
     }
 
-    // 이력 저장
     private void savePaymentHistory(Long userId, BigDecimal amount) {
-        PaymentHistory history = new PaymentHistory(userId, amount, PointType.CHARGE, LocalDateTime.now());
+        PaymentHistory history = new PaymentHistory(userId, null, amount, PointType.CHARGE, LocalDateTime.now());
+        paymentHistoryRepository.save(history);
+    }
+
+    // 이력 저장
+    private void savePaymentHistory(Long userId, Long orderId, BigDecimal amount) {
+        PaymentHistory history = new PaymentHistory(userId, orderId, amount, PointType.CHARGE, LocalDateTime.now());
         paymentHistoryRepository.save(history);
     }
 
