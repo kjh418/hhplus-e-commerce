@@ -1,9 +1,9 @@
 package hhplus.ecommerce.application.order;
 
-import hhplus.ecommerce.application.order.dro.OrderDetailRequest;
-import hhplus.ecommerce.application.order.dro.OrderDetailResponse;
-import hhplus.ecommerce.application.order.dro.OrderRequest;
-import hhplus.ecommerce.application.order.dro.OrderResponse;
+import hhplus.ecommerce.application.order.dto.OrderDetailRequest;
+import hhplus.ecommerce.application.order.dto.OrderDetailResponse;
+import hhplus.ecommerce.application.order.dto.OrderRequest;
+import hhplus.ecommerce.application.order.dto.OrderResponse;
 import hhplus.ecommerce.domain.order.OrderStatus;
 import hhplus.ecommerce.domain.order.Orders;
 import hhplus.ecommerce.domain.payment.PaymentStatus;

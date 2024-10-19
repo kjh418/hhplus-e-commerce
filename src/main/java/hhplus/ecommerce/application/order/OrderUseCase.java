@@ -1,7 +1,7 @@
 package hhplus.ecommerce.application.order;
 
-import hhplus.ecommerce.application.order.dro.OrderRequest;
-import hhplus.ecommerce.application.order.dro.OrderResponse;
+import hhplus.ecommerce.application.order.dto.OrderRequest;
+import hhplus.ecommerce.application.order.dto.OrderResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
