@@ -48,23 +48,26 @@ public class PaymentService {
 
     private PaymentResponse handlePayment(Long userId, Orders order, BigDecimal paymentAmount, BigDecimal currentPoints) {
 
-        if (currentPoints == null) {
-            throw new IllegalStateException("잔액이 존재하지 않습니다.");
-        }
-
-        if (currentPoints.compareTo(paymentAmount) < 0) {
+        if (currentPoints == null || currentPoints.compareTo(paymentAmount) < 0) {
             saveFailedPayment(userId, order.getId(), paymentAmount);
             return new PaymentResponse("포인트가 부족합니다.", PaymentStatus.FAILED);
         }
 
-        saveSuccessfulPaymentHistory(userId, paymentAmount);
+        // 성공적인 결제 기록만 PointType에 기록
+        saveSuccessfulPaymentHistory(userId, order.getId(), paymentAmount);
         processSuccessfulPayment(userId, order, paymentAmount, currentPoints);
         return new PaymentResponse("결제가 완료되었습니다.", PaymentStatus.SUCCESS);
     }
 
-    private void saveSuccessfulPaymentHistory(Long userId, BigDecimal paymentAmount) {
-        PaymentHistory history = new PaymentHistory(userId, paymentAmount, PointType.USE, LocalDateTime.now());
+    private void saveSuccessfulPaymentHistory(Long userId, Long orderId, BigDecimal paymentAmount) {
+        PaymentHistory history = new PaymentHistory(userId, orderId, paymentAmount, PointType.USE, LocalDateTime.now());
         paymentHistoryRepository.save(history);
+    }
+
+    private void saveFailedPayment(Long userId, Long orderId, BigDecimal paymentAmount) {
+        // 결제 실패 기록을 저장할 경우, 별도의 실패 기록을 남길 수 있지만 PointType에는 기록하지 않음
+        Payment failedPayment = new Payment(userId, orderId, paymentAmount, PaymentStatus.FAILED, LocalDateTime.now());
+        paymentRepository.save(failedPayment);
     }
 
     private Users getUserOrThrow(Long userId) {
@@ -85,11 +88,6 @@ public class PaymentService {
         }
     }
 
-    private void saveFailedPayment(Long userId, Long orderId, BigDecimal paymentAmount) {
-        Payment failedPayment = new Payment(userId, orderId, paymentAmount, PaymentStatus.FAILED, LocalDateTime.now());
-        paymentRepository.save(failedPayment);
-    }
-
     private void processSuccessfulPayment(Long userId, Orders order, BigDecimal paymentAmount, BigDecimal currentPoints) {
         BigDecimal newBalance = currentPoints.subtract(paymentAmount);
         userPointRepository.updatePoints(userId, newBalance);
@@ -98,5 +96,4 @@ public class PaymentService {
         Payment payment = new Payment(userId, order.getId(), paymentAmount, PaymentStatus.SUCCESS, LocalDateTime.now());
         paymentRepository.save(payment); // 결제 기록 저장
     }
-
 }
