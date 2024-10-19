@@ -1,4 +1,4 @@
-package hhplus.ecommerce.application.order;
+package hhplus.ecommerce.application.order.dro;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

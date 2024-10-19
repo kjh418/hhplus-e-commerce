@@ -1,9 +1,9 @@
 package hhplus.ecommerce.controller;
 
-import hhplus.ecommerce.application.product.ProductDetailDto;
-import hhplus.ecommerce.application.product.ProductListDto;
 import hhplus.ecommerce.application.product.ProductService;
-import hhplus.ecommerce.application.product.Top5ProductResponse;
+import hhplus.ecommerce.application.product.dto.ProductDetailDto;
+import hhplus.ecommerce.application.product.dto.ProductListDto;
+import hhplus.ecommerce.application.product.dto.Top5ProductResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

@@ -1,9 +1,9 @@
 package hhplus.ecommerce.controller;
 
 import hhplus.ecommerce.application.common.ErrorResponse;
-import hhplus.ecommerce.application.order.OrderRequest;
-import hhplus.ecommerce.application.order.OrderResponse;
 import hhplus.ecommerce.application.order.OrderService;
+import hhplus.ecommerce.application.order.dro.OrderRequest;
+import hhplus.ecommerce.application.order.dro.OrderResponse;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

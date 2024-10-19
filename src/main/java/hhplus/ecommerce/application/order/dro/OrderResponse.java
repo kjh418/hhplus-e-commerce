@@ -1,6 +1,6 @@
-package hhplus.ecommerce.application.order;
+package hhplus.ecommerce.application.order.dro;
 
-import hhplus.ecommerce.application.user.UserBalanceResponse;
+import hhplus.ecommerce.application.user.dto.UserBalanceResponse;
 import hhplus.ecommerce.domain.order.OrderStatus;
 import hhplus.ecommerce.domain.payment.PaymentStatus;
 import lombok.AllArgsConstructor;

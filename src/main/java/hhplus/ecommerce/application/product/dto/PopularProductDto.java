@@ -1,4 +1,4 @@
-package hhplus.ecommerce.application.product;
+package hhplus.ecommerce.application.product.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,16 +1,13 @@
-package hhplus.ecommerce.application.product;
+package hhplus.ecommerce.application.order.dro;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductListDto {
+public class OrderDetailRequest {
     private Long productId;
-    private String name;
-    private BigDecimal price;
+    private int quantity;
 }

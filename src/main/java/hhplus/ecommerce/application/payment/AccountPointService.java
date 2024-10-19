@@ -1,7 +1,7 @@
 package hhplus.ecommerce.application.payment;
 
-import hhplus.ecommerce.application.user.UserBalanceResponse;
-import hhplus.ecommerce.application.user.UserDto;
+import hhplus.ecommerce.application.user.dto.UserBalanceResponse;
+import hhplus.ecommerce.application.user.dto.UserDto;
 import hhplus.ecommerce.domain.payment.PaymentHistory;
 import hhplus.ecommerce.domain.payment.PointAccount;
 import hhplus.ecommerce.domain.payment.PointType;

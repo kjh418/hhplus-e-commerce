@@ -1,7 +1,7 @@
 package hhplus.ecommerce.controller;
 
 import hhplus.ecommerce.application.payment.AccountPointService;
-import hhplus.ecommerce.application.user.UserBalanceResponse;
+import hhplus.ecommerce.application.user.dto.UserBalanceResponse;
 import hhplus.ecommerce.domain.payment.PaymentHistory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

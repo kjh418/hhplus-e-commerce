@@ -1,6 +1,5 @@
-package hhplus.ecommerce.application.payment;
+package hhplus.ecommerce.application.payment.dto;
 
-import hhplus.ecommerce.domain.payment.PointType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,10 +10,10 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PointHistoryDto {
-    private Long id;
-    private Long userId;
+public class PaymentDto {
+    private Long paymentId;
+    private Long orderId;
     private BigDecimal amount;
-    private PointType type;
+    private String status;
     private LocalDateTime createdAt;
 }

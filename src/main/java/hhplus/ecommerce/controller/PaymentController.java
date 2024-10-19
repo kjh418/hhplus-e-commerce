@@ -1,7 +1,7 @@
 package hhplus.ecommerce.controller;
 
-import hhplus.ecommerce.application.payment.PaymentResponse;
 import hhplus.ecommerce.application.payment.PaymentService;
+import hhplus.ecommerce.application.payment.dto.PaymentResponse;
 import hhplus.ecommerce.domain.payment.PaymentStatus;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

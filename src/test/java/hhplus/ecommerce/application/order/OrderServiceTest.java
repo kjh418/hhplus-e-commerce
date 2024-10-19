@@ -1,7 +1,10 @@
 package hhplus.ecommerce.application.order;
 
-import hhplus.ecommerce.application.user.UserBalanceResponse;
-import hhplus.ecommerce.application.user.UserDto;
+import hhplus.ecommerce.application.order.dro.OrderDetailRequest;
+import hhplus.ecommerce.application.order.dro.OrderRequest;
+import hhplus.ecommerce.application.order.dro.OrderResponse;
+import hhplus.ecommerce.application.user.dto.UserBalanceResponse;
+import hhplus.ecommerce.application.user.dto.UserDto;
 import hhplus.ecommerce.domain.order.OrderStatus;
 import hhplus.ecommerce.domain.order.Orders;
 import hhplus.ecommerce.domain.payment.PaymentStatus;
@@ -78,7 +81,7 @@ class OrderServiceTest {
                 new OrderDetailRequest(1L, 2)
         ));
 
-        Product product = new Product(1L, "티셔츠", "가을에 입기 좋은 티셔츠", new BigDecimal("10000"), 1, LocalDateTime.now());
+        Product product = new Product(1L, "티셔츠", "가을에 입기 좋은 티셔츠", new BigDecimal("10000"), 1, LocalDateTime.now(), 10);
 
         Users user = new Users(1L, "홍길동", "서울시 강남구", "01012341234", LocalDateTime.now());
         when(usersRepository.findById(1L)).thenReturn(Optional.of(user));
@@ -98,7 +101,7 @@ class OrderServiceTest {
                 new OrderDetailRequest(1L, 2)
         ));
 
-        Product product = new Product(1L, "티셔츠", "가을에 입기 좋은 티셔츠", new BigDecimal("10000"), 10, LocalDateTime.now());
+        Product product = new Product(1L, "티셔츠", "가을에 입기 좋은 티셔츠", new BigDecimal("10000"), 10, LocalDateTime.now(), 10);
         Users user = new Users(1L, "홍길동", "서울시 강남구", "01012341234", LocalDateTime.now());
 
         UserDto userDto = new UserDto(user.getId(), user.getName(), user.getAddress(), user.getPhoneNumber(), user.getCreatedAt());
