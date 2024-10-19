@@ -1,16 +1,17 @@
 package hhplus.ecommerce.domain.order;
 
-import hhplus.ecommerce.application.common.OrderPaymentStatus;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 public class Orders {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,7 +22,20 @@ public class Orders {
     private BigDecimal totalAmount;
 
     @Enumerated(EnumType.STRING)
-    private OrderPaymentStatus status;
+    private OrderStatus status;
 
     private LocalDateTime createdAt;
+    
+    public void completeOrder() {
+        if (this.status != OrderStatus.COMPLETED) {
+            this.status = OrderStatus.COMPLETED;
+        }
+    }
+
+    public Orders(Long userId, BigDecimal totalAmount, OrderStatus status, LocalDateTime createdAt) {
+        this.userId = userId;
+        this.totalAmount = totalAmount;
+        this.status = status;
+        this.createdAt = createdAt;
+    }
 }
