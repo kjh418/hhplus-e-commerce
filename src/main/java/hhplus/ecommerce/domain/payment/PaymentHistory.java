@@ -21,12 +21,21 @@ public class PaymentHistory {
     private Long id;
 
     private Long userId;
+    private Long orderId;
     private BigDecimal points;
     private PointType type;
     private LocalDateTime createdAt;
 
     public PaymentHistory(Long userId, BigDecimal points, PointType type, LocalDateTime createdAt) {
         this.userId = userId;
+        this.points = points;
+        this.type = type;
+        this.createdAt = createdAt;
+    }
+
+    public PaymentHistory(Long userId, Long orderId, BigDecimal points, PointType type, LocalDateTime createdAt) {
+        this.userId = userId;
+        this.orderId = orderId;
         this.points = points;
         this.type = type;
         this.createdAt = createdAt;
