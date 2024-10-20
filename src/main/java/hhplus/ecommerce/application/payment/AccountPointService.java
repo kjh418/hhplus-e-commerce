@@ -1,5 +1,6 @@
 package hhplus.ecommerce.application.payment;
 
+import hhplus.ecommerce.application.payment.dto.PaymentDto;
 import hhplus.ecommerce.application.user.dto.UserBalanceResponse;
 import hhplus.ecommerce.application.user.dto.UserDto;
 import hhplus.ecommerce.domain.payment.PaymentHistory;
@@ -9,6 +10,7 @@ import hhplus.ecommerce.domain.user.Users;
 import hhplus.ecommerce.infrastructure.repository.PaymentHistoryRepository;
 import hhplus.ecommerce.infrastructure.repository.PointAccountRepository;
 import hhplus.ecommerce.infrastructure.repository.UsersRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,16 +41,16 @@ public class AccountPointService {
 
     // 포인트 충전
     @Transactional
-    public UserBalanceResponse chargePoints(Long userId, BigDecimal amount) {
+    public UserBalanceResponse chargePoints(Long userId, @Valid PaymentDto paymentDto) {
         Users user = findUserById(userId);
-        validateChargeAmount(amount);
+        validateChargeAmount(paymentDto.getAmount());
 
         PointAccount account = findOrCreatePointAccount(userId);
-        BigDecimal newBalance = updateBalance(account, amount);
+        BigDecimal newBalance = updateBalance(account, paymentDto.getAmount());
         account.updateBalance(newBalance);
         pointAccountRepository.save(account);
 
-        savePaymentHistory(userId, amount);
+        savePaymentHistory(userId, paymentDto.getAmount());
 
         return new UserBalanceResponse(
                 new UserDto(user.getId(), user.getName(), user.getAddress(), user.getPhoneNumber(), user.getCreatedAt()),

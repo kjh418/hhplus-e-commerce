@@ -1,11 +1,11 @@
 package hhplus.ecommerce.application.payment;
 
+import hhplus.ecommerce.application.payment.dto.PaymentDto;
 import hhplus.ecommerce.application.user.dto.UserBalanceResponse;
 import hhplus.ecommerce.domain.payment.PaymentHistory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -20,8 +20,8 @@ public class AccountPointUseCase {
     }
 
     // 포인트 충전
-    public UserBalanceResponse chargePoints(Long userId, BigDecimal amount) {
-        return accountPointService.chargePoints(userId, amount);
+    public UserBalanceResponse chargePoints(Long userId, PaymentDto paymentDto) {
+        return accountPointService.chargePoints(userId, paymentDto);
     }
 
     // 포인트 이력 조회

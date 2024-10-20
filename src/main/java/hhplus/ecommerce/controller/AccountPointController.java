@@ -1,12 +1,13 @@
 package hhplus.ecommerce.controller;
 
 import hhplus.ecommerce.application.payment.AccountPointService;
+import hhplus.ecommerce.application.payment.dto.PaymentDto;
 import hhplus.ecommerce.application.user.dto.UserBalanceResponse;
 import hhplus.ecommerce.domain.payment.PaymentHistory;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -24,8 +25,8 @@ public class AccountPointController {
     @PostMapping("/{userId}/charge")
     public ResponseEntity<UserBalanceResponse> chargePoints(
             @PathVariable Long userId,
-            @RequestParam BigDecimal amount) {
-        UserBalanceResponse response = accountPointService.chargePoints(userId, amount);
+            @Valid @RequestBody PaymentDto paymentDto) {
+        UserBalanceResponse response = accountPointService.chargePoints(userId, paymentDto);
         return ResponseEntity.ok(response);
     }
 

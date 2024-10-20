@@ -1,5 +1,6 @@
 package hhplus.ecommerce.application.payment;
 
+import hhplus.ecommerce.application.payment.dto.PaymentDto;
 import hhplus.ecommerce.application.user.dto.UserBalanceResponse;
 import hhplus.ecommerce.application.user.dto.UserDto;
 import hhplus.ecommerce.domain.payment.PaymentHistory;
@@ -29,12 +30,12 @@ class AccountPointUseCaseTest {
     private AccountPointUseCase accountPointUseCase;
 
     private Long userId;
-    private BigDecimal chargeAmount;
+    private PaymentDto paymentDto;
 
     @BeforeEach
     public void setUp() {
         userId = 1L;
-        chargeAmount = new BigDecimal("50000");
+        paymentDto = new PaymentDto(new BigDecimal("50000"));
     }
 
     @Test
@@ -46,7 +47,7 @@ class AccountPointUseCaseTest {
         when(accountPointService.getBalance(userId)).thenReturn(expectedResponse);
 
         UserBalanceResponse result = accountPointUseCase.getBalance(userId);
-        
+
         assertNotNull(result);
         assertEquals(new BigDecimal("150000"), result.getBalance());
         verify(accountPointService, times(1)).getBalance(userId);
@@ -58,13 +59,13 @@ class AccountPointUseCaseTest {
                 new UserDto(userId, "홍길동", "서울", "010-1234-5678", LocalDateTime.now()),
                 new BigDecimal("200000")
         );
-        when(accountPointService.chargePoints(userId, chargeAmount)).thenReturn(expectedResponse);
+        when(accountPointService.chargePoints(userId, paymentDto)).thenReturn(expectedResponse);
 
-        UserBalanceResponse result = accountPointUseCase.chargePoints(userId, chargeAmount);
+        UserBalanceResponse result = accountPointUseCase.chargePoints(userId, paymentDto);
 
         assertNotNull(result);
         assertEquals(new BigDecimal("200000"), result.getBalance());
-        verify(accountPointService, times(1)).chargePoints(userId, chargeAmount);
+        verify(accountPointService, times(1)).chargePoints(userId, paymentDto);
     }
 
     @Test
