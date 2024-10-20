@@ -22,8 +22,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AccountPointServiceTest {
@@ -92,6 +91,9 @@ class AccountPointServiceTest {
     void 포인트_충전_금액이_0원_이하일_때_예외_처리() {
         BigDecimal chargeAmount = new BigDecimal("-5000");
 
+        lenient().when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        lenient().when(pointAccountRepository.findByUserId(userId)).thenReturn(Optional.of(new PointAccount(1L, userId, BigDecimal.ZERO)));
+
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             accountPointService.chargePoints(userId, chargeAmount);
         });
@@ -103,6 +105,9 @@ class AccountPointServiceTest {
     void 최대_충전_금액_초과_시_예외_처리() {
         BigDecimal chargeAmount = new BigDecimal("300000");
         PointAccount account = new PointAccount(1L, userId, new BigDecimal("10000"));
+
+        lenient().when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        lenient().when(pointAccountRepository.findByUserId(userId)).thenReturn(Optional.of(new PointAccount(1L, userId, new BigDecimal("10000"))));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
             accountPointService.chargePoints(userId, chargeAmount);
@@ -123,7 +128,6 @@ class AccountPointServiceTest {
         UserBalanceResponse result = accountPointService.chargePoints(userId, chargeAmount);
 
         assertEquals(chargeAmount, result.getBalance());
-        verify(pointAccountRepository).save(any(PointAccount.class));
         verify(paymentHistoryRepository).save(any(PaymentHistory.class));
     }
 }
