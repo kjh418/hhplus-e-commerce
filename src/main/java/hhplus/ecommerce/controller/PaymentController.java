@@ -3,6 +3,7 @@ package hhplus.ecommerce.controller;
 import hhplus.ecommerce.application.payment.PaymentService;
 import hhplus.ecommerce.application.payment.dto.PaymentResponse;
 import hhplus.ecommerce.domain.payment.PaymentStatus;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +13,7 @@ import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/payment")
+@RequiredArgsConstructor
 public class PaymentController {
 
     private final PaymentService paymentService;
@@ -26,10 +28,5 @@ public class PaymentController {
         } catch (NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new PaymentResponse(e.getMessage(), PaymentStatus.FAILED));
         }
-    }
-
-
-    public PaymentController(PaymentService paymentService) {
-        this.paymentService = paymentService;
     }
 }

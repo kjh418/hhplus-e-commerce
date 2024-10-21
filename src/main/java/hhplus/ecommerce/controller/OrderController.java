@@ -5,6 +5,7 @@ import hhplus.ecommerce.application.order.OrderService;
 import hhplus.ecommerce.application.order.dto.OrderRequest;
 import hhplus.ecommerce.application.order.dto.OrderResponse;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/orders")
+@RequiredArgsConstructor
 public class OrderController {
 
     private final OrderService orderService;
@@ -34,9 +36,5 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponse("서버 오류가 발생했습니다."));
         }
-    }
-
-    public OrderController(OrderService orderService) {
-        this.orderService = orderService;
     }
 }

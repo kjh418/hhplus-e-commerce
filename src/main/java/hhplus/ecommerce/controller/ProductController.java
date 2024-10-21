@@ -4,6 +4,7 @@ import hhplus.ecommerce.application.product.ProductService;
 import hhplus.ecommerce.application.product.dto.ProductDetailDto;
 import hhplus.ecommerce.application.product.dto.ProductListDto;
 import hhplus.ecommerce.application.product.dto.Top5ProductResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/products")
+@RequiredArgsConstructor
 public class ProductController {
 
     private final ProductService productService;
@@ -34,9 +36,5 @@ public class ProductController {
     public ResponseEntity<List<Top5ProductResponse>> getTop5Products() {
         List<Top5ProductResponse> topProducts = productService.getTop5Products();
         return ResponseEntity.ok(topProducts);
-    }
-
-    public ProductController(ProductService productService) {
-        this.productService = productService;
     }
 }

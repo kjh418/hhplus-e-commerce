@@ -5,6 +5,7 @@ import hhplus.ecommerce.application.payment.dto.PaymentDto;
 import hhplus.ecommerce.application.user.dto.UserBalanceResponse;
 import hhplus.ecommerce.domain.payment.PaymentHistory;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/points")
+@RequiredArgsConstructor
 public class AccountPointController {
 
     private final AccountPointService accountPointService;
@@ -26,7 +28,7 @@ public class AccountPointController {
     public ResponseEntity<UserBalanceResponse> chargePoints(
             @PathVariable Long userId,
             @Valid @RequestBody PaymentDto paymentDto) {
-        UserBalanceResponse response = accountPointService.chargePoints(userId, paymentDto);
+        UserBalanceResponse response = accountPointService.chargePoints(userId, paymentDto, paymentDto.getOrderId());
         return ResponseEntity.ok(response);
     }
 
@@ -34,9 +36,5 @@ public class AccountPointController {
     public ResponseEntity<List<PaymentHistory>> getPaymentHistory(@PathVariable Long userId) {
         List<PaymentHistory> history = accountPointService.getPaymentHistory(userId);
         return ResponseEntity.ok(history);
-    }
-
-    public AccountPointController(AccountPointService accountPointService) {
-        this.accountPointService = accountPointService;
     }
 }
