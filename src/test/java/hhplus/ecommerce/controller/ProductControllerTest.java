@@ -1,8 +1,8 @@
 package hhplus.ecommerce.controller;
 
-import hhplus.ecommerce.application.product.ProductDetailDto;
-import hhplus.ecommerce.application.product.ProductListDto;
 import hhplus.ecommerce.application.product.ProductService;
+import hhplus.ecommerce.application.product.dto.ProductDetailDto;
+import hhplus.ecommerce.application.product.dto.ProductListDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

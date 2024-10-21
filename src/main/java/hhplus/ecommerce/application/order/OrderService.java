@@ -1,10 +1,16 @@
 package hhplus.ecommerce.application.order;
 
+import hhplus.ecommerce.application.order.dto.OrderDetailRequest;
+import hhplus.ecommerce.application.order.dto.OrderDetailResponse;
+import hhplus.ecommerce.application.order.dto.OrderRequest;
+import hhplus.ecommerce.application.order.dto.OrderResponse;
 import hhplus.ecommerce.domain.order.OrderStatus;
 import hhplus.ecommerce.domain.order.Orders;
+import hhplus.ecommerce.domain.order.OrdersDetail;
 import hhplus.ecommerce.domain.payment.PaymentStatus;
 import hhplus.ecommerce.domain.product.Product;
 import hhplus.ecommerce.domain.user.Users;
+import hhplus.ecommerce.infrastructure.repository.OrdersDetailRepository;
 import hhplus.ecommerce.infrastructure.repository.OrdersRepository;
 import hhplus.ecommerce.infrastructure.repository.ProductRepository;
 import hhplus.ecommerce.infrastructure.repository.UsersRepository;
@@ -25,6 +31,7 @@ public class OrderService {
     private final UsersRepository usersRepository;
     private final ProductRepository productRepository;
     private final OrdersRepository orderRepository;
+    private final OrdersDetailRepository ordersDetailRepository;
 
     @Transactional
     public OrderResponse createOrder(OrderRequest request) {
@@ -37,12 +44,31 @@ public class OrderService {
 
         Orders orders = saveOrder(user.getId(), totalAmount);
 
+        saveOrderDetails(orders, request.getOrderDetails());
+
         return buildOrderResponse(orders, orderDetailResponses);
     }
 
     private Users findUserById(Long userId) {
         return usersRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("사용자가 존재하지 않습니다."));
+    }
+
+    private void saveOrderDetails(Orders orders, List<OrderDetailRequest> orderDetails) {
+        for (OrderDetailRequest detailRequest : orderDetails) {
+            Product product = productRepository.findById(detailRequest.getProductId())
+                    .orElseThrow(() -> new EntityNotFoundException("상품이 존재하지 않습니다."));
+
+            OrdersDetail ordersDetail = new OrdersDetail(
+                    orders.getId(),
+                    product.getId(),
+                    detailRequest.getQuantity(),
+                    product.getPrice()
+            );
+
+            // 주문 상세 저장
+            ordersDetailRepository.save(ordersDetail);
+        }
     }
 
     private BigDecimal calculateTotalAmount(List<OrderDetailRequest> orderDetails, List<OrderDetailResponse> orderDetailResponses) {

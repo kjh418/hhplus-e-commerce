@@ -1,7 +1,7 @@
 package hhplus.ecommerce.controller;
 
-import hhplus.ecommerce.application.cart.CartItemDto;
 import hhplus.ecommerce.application.cart.CartService;
+import hhplus.ecommerce.application.cart.dto.CartItemDto;
 import hhplus.ecommerce.domain.cart.CartItem;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

@@ -1,7 +1,8 @@
 package hhplus.ecommerce.application.payment;
 
-import hhplus.ecommerce.application.user.UserBalanceResponse;
-import hhplus.ecommerce.application.user.UserDto;
+import hhplus.ecommerce.application.payment.dto.PaymentDto;
+import hhplus.ecommerce.application.user.dto.UserBalanceResponse;
+import hhplus.ecommerce.application.user.dto.UserDto;
 import hhplus.ecommerce.domain.payment.PaymentHistory;
 import hhplus.ecommerce.domain.payment.PointAccount;
 import hhplus.ecommerce.domain.payment.PointType;
@@ -9,6 +10,7 @@ import hhplus.ecommerce.domain.user.Users;
 import hhplus.ecommerce.infrastructure.repository.PaymentHistoryRepository;
 import hhplus.ecommerce.infrastructure.repository.PointAccountRepository;
 import hhplus.ecommerce.infrastructure.repository.UsersRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,24 +38,20 @@ public class AccountPointService {
 
         return createUserBalanceResponse(user, account);
     }
-
-    // 포인트 충전
+    
     @Transactional
-    public UserBalanceResponse chargePoints(Long userId, BigDecimal amount) {
+    public UserBalanceResponse chargePoints(Long userId, @Valid PaymentDto paymentDto, Long orderId) {
         Users user = findUserById(userId);
-        validateChargeAmount(amount);
+        validateChargeAmount(paymentDto.getAmount());
 
         PointAccount account = findOrCreatePointAccount(userId);
-        BigDecimal newBalance = updateBalance(account, amount);
+        BigDecimal newBalance = updateBalance(account, paymentDto.getAmount());
         account.updateBalance(newBalance);
         pointAccountRepository.save(account);
 
-        savePaymentHistory(userId, amount);
+        savePaymentHistory(userId, orderId, paymentDto.getAmount());
 
-        return new UserBalanceResponse(
-                new UserDto(user.getId(), user.getName(), user.getAddress(), user.getPhoneNumber(), user.getCreatedAt()),
-                newBalance
-        );
+        return createUserBalanceResponse(user, account);
     }
 
     // 포인트 이력 조회
@@ -95,8 +93,8 @@ public class AccountPointService {
     }
 
     // 이력 저장
-    private void savePaymentHistory(Long userId, BigDecimal amount) {
-        PaymentHistory history = new PaymentHistory(userId, amount, PointType.CHARGE, LocalDateTime.now());
+    private void savePaymentHistory(Long userId, Long orderId, BigDecimal amount) {
+        PaymentHistory history = new PaymentHistory(userId, orderId, amount, PointType.CHARGE, LocalDateTime.now());
         paymentHistoryRepository.save(history);
     }
 

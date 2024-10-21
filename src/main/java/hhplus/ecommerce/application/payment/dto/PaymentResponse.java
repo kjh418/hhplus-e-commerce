@@ -1,4 +1,4 @@
-package hhplus.ecommerce.application.payment;
+package hhplus.ecommerce.application.payment.dto;
 
 import hhplus.ecommerce.domain.payment.PaymentStatus;
 import lombok.AllArgsConstructor;

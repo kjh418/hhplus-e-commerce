@@ -1,4 +1,4 @@
-package hhplus.ecommerce.application.product;
+package hhplus.ecommerce.application.order.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,10 +9,8 @@ import java.math.BigDecimal;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductDetailDto {
+public class OrderDetailResponse {
     private Long productId;
-    private String name;
+    private int quantity;
     private BigDecimal price;
-    private int stockQuantity;
-    private String description;
 }

@@ -1,9 +1,6 @@
 package hhplus.ecommerce.domain.order;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -12,6 +9,7 @@ import java.math.BigDecimal;
 @Entity
 @Getter
 @RequiredArgsConstructor
+@Table(name = "order_detail")
 public class OrdersDetail {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,4 +22,11 @@ public class OrdersDetail {
     private int quantity;
 
     private BigDecimal price;
+
+    public OrdersDetail(Long orderId, Long productId, int quantity, BigDecimal price) {
+        this.orderId = orderId;
+        this.productId = productId;
+        this.quantity = quantity;
+        this.price = price;
+    }
 }

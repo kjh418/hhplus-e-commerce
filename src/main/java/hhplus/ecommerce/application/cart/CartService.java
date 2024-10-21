@@ -6,6 +6,7 @@ import hhplus.ecommerce.infrastructure.repository.CartItemRepository;
 import hhplus.ecommerce.infrastructure.repository.CartRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,6 +29,7 @@ public class CartService {
                 });
     }
 
+    @Transactional
     public void addItemToCart(Long userId, Long productId, int quantity, boolean isSelected) {
         Cart cart = getCartByUserId(userId);
         Optional<CartItem> existingItemOpt = cartItemRepository.findByCartIdAndProductId(cart.getId(), productId);
@@ -42,6 +44,7 @@ public class CartService {
         }
     }
 
+    @Transactional
     public void removeItemFromCart(Long userId, Long cartItemId) {
         CartItem cartItem = cartItemRepository.findById(cartItemId)
                 .orElseThrow(() -> new NoSuchElementException("해당 아이템이 장바구니에 없습니다."));
