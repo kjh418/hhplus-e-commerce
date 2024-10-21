@@ -82,7 +82,7 @@ class AccountPointServiceTest {
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
         NoSuchElementException exception = assertThrows(NoSuchElementException.class, () -> {
-            accountPointService.chargePoints(userId, paymentDto);
+            accountPointService.chargePoints(userId, paymentDto, null);
         });
 
         assertEquals("사용자가 존재하지 않습니다.", exception.getMessage());
@@ -96,7 +96,7 @@ class AccountPointServiceTest {
         lenient().when(pointAccountRepository.findByUserId(userId)).thenReturn(Optional.of(new PointAccount(1L, userId, BigDecimal.ZERO)));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            accountPointService.chargePoints(userId, paymentDto);
+            accountPointService.chargePoints(userId, paymentDto, null);
         });
 
         assertEquals("충전할 금액은 0보다 커야 합니다.", exception.getMessage());
@@ -110,7 +110,7 @@ class AccountPointServiceTest {
         lenient().when(pointAccountRepository.findByUserId(userId)).thenReturn(Optional.of(new PointAccount(1L, userId, new BigDecimal("10000"))));
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            accountPointService.chargePoints(userId, paymentDto);
+            accountPointService.chargePoints(userId, paymentDto, null);
         });
 
         assertEquals("한 번에 충전할 수 있는 최대 금액은 20만원입니다.", exception.getMessage());
@@ -125,7 +125,7 @@ class AccountPointServiceTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(pointAccountRepository.findByUserId(userId)).thenReturn(Optional.empty());
 
-        UserBalanceResponse result = accountPointService.chargePoints(userId, paymentDto);
+        UserBalanceResponse result = accountPointService.chargePoints(userId, paymentDto, null);
 
         assertEquals(paymentDto.getAmount(), result.getBalance());
         verify(paymentHistoryRepository).save(any(PaymentHistory.class));

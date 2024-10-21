@@ -59,13 +59,13 @@ class AccountPointUseCaseTest {
                 new UserDto(userId, "홍길동", "서울", "010-1234-5678", LocalDateTime.now()),
                 new BigDecimal("200000")
         );
-        when(accountPointService.chargePoints(userId, paymentDto)).thenReturn(expectedResponse);
+        when(accountPointService.chargePoints(userId, paymentDto, null)).thenReturn(expectedResponse);
 
-        UserBalanceResponse result = accountPointUseCase.chargePoints(userId, paymentDto);
+        UserBalanceResponse result = accountPointUseCase.chargePoints(userId, paymentDto, null);
 
         assertNotNull(result);
         assertEquals(new BigDecimal("200000"), result.getBalance());
-        verify(accountPointService, times(1)).chargePoints(userId, paymentDto);
+        verify(accountPointService, times(1)).chargePoints(userId, paymentDto, null);
     }
 
     @Test
