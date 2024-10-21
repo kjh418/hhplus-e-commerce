@@ -38,10 +38,9 @@ public class AccountPointService {
 
         return createUserBalanceResponse(user, account);
     }
-
-    // 포인트 충전
+    
     @Transactional
-    public UserBalanceResponse chargePoints(Long userId, @Valid PaymentDto paymentDto) {
+    public UserBalanceResponse chargePoints(Long userId, @Valid PaymentDto paymentDto, Long orderId) {
         Users user = findUserById(userId);
         validateChargeAmount(paymentDto.getAmount());
 
@@ -50,12 +49,9 @@ public class AccountPointService {
         account.updateBalance(newBalance);
         pointAccountRepository.save(account);
 
-        savePaymentHistory(userId, paymentDto.getAmount());
+        savePaymentHistory(userId, orderId, paymentDto.getAmount());
 
-        return new UserBalanceResponse(
-                new UserDto(user.getId(), user.getName(), user.getAddress(), user.getPhoneNumber(), user.getCreatedAt()),
-                newBalance
-        );
+        return createUserBalanceResponse(user, account);
     }
 
     // 포인트 이력 조회
@@ -94,11 +90,6 @@ public class AccountPointService {
         account.updateBalance(newBalance);
         pointAccountRepository.save(account);
         return newBalance;
-    }
-
-    private void savePaymentHistory(Long userId, BigDecimal amount) {
-        PaymentHistory history = new PaymentHistory(userId, null, amount, PointType.CHARGE, LocalDateTime.now());
-        paymentHistoryRepository.save(history);
     }
 
     // 이력 저장

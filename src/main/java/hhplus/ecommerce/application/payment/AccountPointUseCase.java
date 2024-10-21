@@ -20,8 +20,8 @@ public class AccountPointUseCase {
     }
 
     // 포인트 충전
-    public UserBalanceResponse chargePoints(Long userId, PaymentDto paymentDto) {
-        return accountPointService.chargePoints(userId, paymentDto);
+    public UserBalanceResponse chargePoints(Long userId, PaymentDto paymentDto, Long orderId) {
+        return accountPointService.chargePoints(userId, paymentDto, orderId);
     }
 
     // 포인트 이력 조회
