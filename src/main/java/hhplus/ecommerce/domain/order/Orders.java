@@ -25,10 +25,16 @@ public class Orders {
     private OrderStatus status;
 
     private LocalDateTime createdAt;
-    
+
     public void completeOrder() {
         if (this.status != OrderStatus.COMPLETED) {
             this.status = OrderStatus.COMPLETED;
+        }
+    }
+
+    public void cancelOrder() {
+        if (this.status != OrderStatus.CANCELLED) {
+            this.status = OrderStatus.CANCELLED;
         }
     }
 

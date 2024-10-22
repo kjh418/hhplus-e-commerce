@@ -9,7 +9,9 @@ import hhplus.ecommerce.domain.payment.PaymentStatus;
 import hhplus.ecommerce.domain.payment.PointType;
 import hhplus.ecommerce.domain.user.Users;
 import hhplus.ecommerce.infrastructure.repository.*;
+import jakarta.persistence.LockModeType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,7 +42,7 @@ public class PaymentService {
         validateOrderForPayment(order, paymentAmount);
 
         // 포인트 잔액 확인
-        BigDecimal currentPoints = userPointRepository.findCurrentPointsByUserId(user.getId());
+        BigDecimal currentPoints = getCurrentPointsWithLock(user.getId());
 
         // 포인트 잔액 확인, 결제 처리
         return handlePayment(userId, order, paymentAmount, currentPoints);
@@ -59,15 +61,13 @@ public class PaymentService {
         return new PaymentResponse("결제가 완료되었습니다.", PaymentStatus.SUCCESS);
     }
 
-    private void saveSuccessfulPaymentHistory(Long userId, Long orderId, BigDecimal paymentAmount) {
-        PaymentHistory history = new PaymentHistory(userId, orderId, paymentAmount, PointType.USE, LocalDateTime.now());
-        paymentHistoryRepository.save(history);
-    }
-
     private void saveFailedPayment(Long userId, Long orderId, BigDecimal paymentAmount) {
-        // 결제 실패 기록을 저장할 경우, 별도의 실패 기록을 남길 수 있지만 PointType에는 기록하지 않음
         Payment failedPayment = new Payment(userId, orderId, paymentAmount, PaymentStatus.FAILED, LocalDateTime.now());
         paymentRepository.save(failedPayment);
+
+        Orders order = getOrderOrThrow(orderId);
+        order.cancelOrder();
+        orderRepository.save(order);
     }
 
     private Users getUserOrThrow(Long userId) {
@@ -88,12 +88,29 @@ public class PaymentService {
         }
     }
 
+    // 비관적 락
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    public BigDecimal getCurrentPointsWithLock(Long userId) {
+        return userPointRepository.findCurrentPointsByUserId(userId);
+    }
+
+    private void saveSuccessfulPaymentHistory(Long userId, Long orderId, BigDecimal paymentAmount) {
+        PaymentHistory history = new PaymentHistory(userId, orderId, paymentAmount, PointType.USE, LocalDateTime.now());
+        paymentHistoryRepository.save(history);
+    }
+
     private void processSuccessfulPayment(Long userId, Orders order, BigDecimal paymentAmount, BigDecimal currentPoints) {
         BigDecimal newBalance = currentPoints.subtract(paymentAmount);
-        userPointRepository.updatePoints(userId, newBalance);
+        updatePointsWithLock(userId, newBalance);
         order.completeOrder(); // 주문 상태 변경
         orderRepository.save(order); // 주문 저장
         Payment payment = new Payment(userId, order.getId(), paymentAmount, PaymentStatus.SUCCESS, LocalDateTime.now());
         paymentRepository.save(payment); // 결제 기록 저장
+    }
+
+    // 비관적 락
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    public void updatePointsWithLock(Long userId, BigDecimal newBalance) {
+        userPointRepository.updatePoints(userId, newBalance);
     }
 }
