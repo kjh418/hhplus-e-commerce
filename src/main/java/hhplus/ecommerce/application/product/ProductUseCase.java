@@ -2,7 +2,7 @@ package hhplus.ecommerce.application.product;
 
 import hhplus.ecommerce.application.product.dto.ProductDetailDto;
 import hhplus.ecommerce.application.product.dto.ProductListDto;
-import hhplus.ecommerce.application.product.dto.Top5ProductResponse;
+import hhplus.ecommerce.application.product.dto.TopProductResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +22,7 @@ public class ProductUseCase {
         return productService.getProductDetails(productId);
     }
 
-    public List<Top5ProductResponse> getTop5Products() {
-        return productService.getTop5Products();
+    public List<TopProductResponse> getTopProducts(int days, int limit) {
+        return productService.getTopProducts(days, limit);
     }
 }

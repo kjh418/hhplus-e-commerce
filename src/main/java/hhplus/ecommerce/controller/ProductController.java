@@ -3,13 +3,10 @@ package hhplus.ecommerce.controller;
 import hhplus.ecommerce.application.product.ProductService;
 import hhplus.ecommerce.application.product.dto.ProductDetailDto;
 import hhplus.ecommerce.application.product.dto.ProductListDto;
-import hhplus.ecommerce.application.product.dto.Top5ProductResponse;
+import hhplus.ecommerce.application.product.dto.TopProductResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -32,9 +29,12 @@ public class ProductController {
         return ResponseEntity.ok(product);
     }
 
-    @GetMapping("/top5")
-    public ResponseEntity<List<Top5ProductResponse>> getTop5Products() {
-        List<Top5ProductResponse> topProducts = productService.getTop5Products();
+    @GetMapping("/top")
+    public ResponseEntity<List<TopProductResponse>> getTopProducts(
+            @RequestParam(defaultValue = "3") int days,
+            @RequestParam(defaultValue = "5") int limit
+    ) {
+        List<TopProductResponse> topProducts = productService.getTopProducts(days, limit);
         return ResponseEntity.ok(topProducts);
     }
 }

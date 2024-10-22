@@ -2,7 +2,7 @@ package hhplus.ecommerce.application.product;
 
 import hhplus.ecommerce.application.product.dto.ProductDetailDto;
 import hhplus.ecommerce.application.product.dto.ProductListDto;
-import hhplus.ecommerce.application.product.dto.Top5ProductResponse;
+import hhplus.ecommerce.application.product.dto.TopProductResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -15,6 +15,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -54,14 +55,14 @@ class ProductIntegrationTest {
     }
 
     @Test
-    public void testGetTop5Products() {
-        List<Top5ProductResponse> mockTopProducts = List.of(
-                new Top5ProductResponse(1L, "청바지", new BigDecimal("10000"), 100),
-                new Top5ProductResponse(2L, "티셔츠", new BigDecimal("20000"), 80)
+    public void testGetTopProducts() {
+        List<TopProductResponse> mockTopProducts = List.of(
+                new TopProductResponse(1L, "청바지", new BigDecimal("10000"), 100),
+                new TopProductResponse(2L, "티셔츠", new BigDecimal("20000"), 80)
         );
-        when(productService.getTop5Products()).thenReturn(mockTopProducts);
+        when(productService.getTopProducts(anyInt(), anyInt())).thenReturn(mockTopProducts);
 
-        List<Top5ProductResponse> topProducts = productUseCase.getTop5Products();
+        List<TopProductResponse> topProducts = productUseCase.getTopProducts(3, 5);
 
         assertNotNull(topProducts);
         assertEquals(2, topProducts.size());
