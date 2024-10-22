@@ -39,6 +39,9 @@ public class Product {
             throw new IllegalStateException("재고가 부족합니다.");
         }
         this.stockQuantity -= quantity;
+    }
+
+    public void increaseSales(int quantity) {
         this.totalSales += quantity;
     }
 }
