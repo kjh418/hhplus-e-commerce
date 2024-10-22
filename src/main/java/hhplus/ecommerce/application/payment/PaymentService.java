@@ -3,10 +3,12 @@ package hhplus.ecommerce.application.payment;
 import hhplus.ecommerce.application.payment.dto.PaymentResponse;
 import hhplus.ecommerce.domain.order.OrderStatus;
 import hhplus.ecommerce.domain.order.Orders;
+import hhplus.ecommerce.domain.order.OrdersDetail;
 import hhplus.ecommerce.domain.payment.Payment;
 import hhplus.ecommerce.domain.payment.PaymentHistory;
 import hhplus.ecommerce.domain.payment.PaymentStatus;
 import hhplus.ecommerce.domain.payment.PointType;
+import hhplus.ecommerce.domain.product.Product;
 import hhplus.ecommerce.domain.user.Users;
 import hhplus.ecommerce.infrastructure.repository.*;
 import jakarta.persistence.LockModeType;
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -27,7 +30,9 @@ public class PaymentService {
     private final UsersRepository usersRepository;
     private final UserPointRepository userPointRepository;
     private final OrdersRepository orderRepository;
+    private final OrdersDetailRepository ordersDetailRepository;
     private final PaymentHistoryRepository paymentHistoryRepository;
+    private final ProductRepository productRepository;
 
     @Transactional
     public PaymentResponse processPayment(Long orderId, Long userId, BigDecimal paymentAmount) {
@@ -102,6 +107,17 @@ public class PaymentService {
     private void processSuccessfulPayment(Long userId, Orders order, BigDecimal paymentAmount, BigDecimal currentPoints) {
         BigDecimal newBalance = currentPoints.subtract(paymentAmount);
         updatePointsWithLock(userId, newBalance);
+
+        List<OrdersDetail> orderDetails = ordersDetailRepository.findByOrderId(order.getId());
+        for (OrdersDetail detail : orderDetails) {
+            Product product = productRepository.findById(detail.getProductId())
+                    .orElseThrow(() -> new NoSuchElementException("상품을 찾을 수 없습니다."));
+
+            product.reduceStock(detail.getQuantity());
+            product.increaseSales(detail.getQuantity());
+            productRepository.save(product);
+        }
+
         order.completeOrder(); // 주문 상태 변경
         orderRepository.save(order); // 주문 저장
         Payment payment = new Payment(userId, order.getId(), paymentAmount, PaymentStatus.SUCCESS, LocalDateTime.now());
