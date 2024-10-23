@@ -1,5 +1,6 @@
 package hhplus.ecommerce.application.order;
 
+import hhplus.ecommerce.application.common.ErrorCode;
 import hhplus.ecommerce.application.order.dto.OrderDetailRequest;
 import hhplus.ecommerce.application.order.dto.OrderDetailResponse;
 import hhplus.ecommerce.application.order.dto.OrderRequest;
@@ -51,13 +52,13 @@ public class OrderService {
 
     private Users findUserById(Long userId) {
         return usersRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("사용자가 존재하지 않습니다."));
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.USER_NOT_FOUND.getMessage()));
     }
 
     private void saveOrderDetails(Orders orders, List<OrderDetailRequest> orderDetails) {
         for (OrderDetailRequest detailRequest : orderDetails) {
             Product product = productRepository.findById(detailRequest.getProductId())
-                    .orElseThrow(() -> new EntityNotFoundException("상품이 존재하지 않습니다."));
+                    .orElseThrow(() -> new EntityNotFoundException(ErrorCode.PRODUCT_NOT_FOUND.getMessage()));
 
             OrdersDetail ordersDetail = new OrdersDetail(
                     orders.getId(),
@@ -76,7 +77,7 @@ public class OrderService {
 
         for (OrderDetailRequest detailRequest : orderDetails) {
             Product product = productRepository.findById(detailRequest.getProductId())
-                    .orElseThrow(() -> new EntityNotFoundException("상품이 존재하지 않습니다."));
+                    .orElseThrow(() -> new EntityNotFoundException(ErrorCode.PRODUCT_NOT_FOUND.getMessage()));
 
             // 재고 확인 및 감소
             product.reduceStock(detailRequest.getQuantity());
