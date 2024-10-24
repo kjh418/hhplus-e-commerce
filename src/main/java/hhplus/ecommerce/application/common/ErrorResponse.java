@@ -8,5 +8,17 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ErrorResponse {
+    private String errorCode;
     private String message;
+    private int status;
+
+    public ErrorResponse(String message) {
+        this.message = message;
+    }
+
+    public ErrorResponse(ErrorCode errorCode) {
+        this.errorCode = errorCode.getCode();
+        this.message = errorCode.getMessage();
+        this.status = errorCode.getStatus().value();
+    }
 }
