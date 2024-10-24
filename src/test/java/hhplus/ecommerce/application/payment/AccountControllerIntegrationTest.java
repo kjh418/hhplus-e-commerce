@@ -27,6 +27,7 @@ public class AccountControllerIntegrationTest {
 
         mockMvc.perform(post("/points/{userId}/charge", userId)
                         .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)  // Accept 헤더 추가
                         .content("{\"amount\": 10000}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.balance").value(10000));
