@@ -1,5 +1,6 @@
 package hhplus.ecommerce.application.payment;
 
+import hhplus.ecommerce.application.common.ErrorCode;
 import hhplus.ecommerce.application.payment.dto.PaymentResponse;
 import hhplus.ecommerce.domain.order.OrderStatus;
 import hhplus.ecommerce.domain.order.Orders;
@@ -57,7 +58,7 @@ public class PaymentService {
 
         if (currentPoints == null || currentPoints.compareTo(paymentAmount) < 0) {
             saveFailedPayment(userId, order.getId(), paymentAmount);
-            return new PaymentResponse("포인트가 부족합니다.", PaymentStatus.FAILED);
+            return new PaymentResponse(ErrorCode.INSUFFICIENT_BALANCE.getMessage(), PaymentStatus.FAILED);
         }
 
         // 성공적인 결제 기록만 PointType에 기록
@@ -76,20 +77,20 @@ public class PaymentService {
     }
 
     private Users getUserOrThrow(Long userId) {
-        return usersRepository.findById(userId).orElseThrow(() -> new NoSuchElementException("사용자를 찾을 수 없습니다."));
+        return usersRepository.findById(userId).orElseThrow(() -> new NoSuchElementException(ErrorCode.USER_NOT_FOUND.getMessage()));
     }
 
     private Orders getOrderOrThrow(Long orderId) {
-        return orderRepository.findById(orderId).orElseThrow(() -> new NoSuchElementException("주문을 찾을 수 없습니다."));
+        return orderRepository.findById(orderId).orElseThrow(() -> new NoSuchElementException(ErrorCode.ORDER_NOT_FOUND.getMessage()));
     }
 
     private void validateOrderForPayment(Orders order, BigDecimal paymentAmount) {
         if (order.getStatus() == OrderStatus.COMPLETED) {
-            throw new IllegalStateException("이미 결제가 완료된 주문입니다.");
+            throw new IllegalStateException(ErrorCode.ORDER_ALREADY_COMPLETED.getMessage());
         }
 
         if (order.getTotalAmount().compareTo(paymentAmount) != 0) {
-            throw new IllegalArgumentException("결제 금액이 주문 금액과 일치하지 않습니다.");
+            throw new IllegalArgumentException(ErrorCode.PAYMENT_AMOUNT_MISMATCH.getMessage());
         }
     }
 

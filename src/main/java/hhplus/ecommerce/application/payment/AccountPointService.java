@@ -1,5 +1,6 @@
 package hhplus.ecommerce.application.payment;
 
+import hhplus.ecommerce.application.common.ErrorCode;
 import hhplus.ecommerce.application.payment.dto.PaymentDto;
 import hhplus.ecommerce.application.user.dto.UserBalanceResponse;
 import hhplus.ecommerce.application.user.dto.UserDto;
@@ -38,7 +39,7 @@ public class AccountPointService {
 
         return createUserBalanceResponse(user, account);
     }
-    
+
     @Transactional
     public UserBalanceResponse chargePoints(Long userId, @Valid PaymentDto paymentDto, Long orderId) {
         Users user = findUserById(userId);
@@ -61,7 +62,7 @@ public class AccountPointService {
 
     private Users findUserById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("사용자가 존재하지 않습니다."));
+                .orElseThrow(() -> new NoSuchElementException(ErrorCode.USER_NOT_FOUND.getMessage()));
     }
 
     private PointAccount findOrCreatePointAccount(Long userId) {
@@ -77,10 +78,10 @@ public class AccountPointService {
 
     private void validateChargeAmount(BigDecimal amount) {
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("충전할 금액은 0보다 커야 합니다.");
+            throw new IllegalArgumentException(ErrorCode.NEGATIVE_POINT_AMOUNT.getMessage());
         }
         if (amount.compareTo(MAX_CHARGE_AMOUNT) > 0) {
-            throw new IllegalArgumentException("한 번에 충전할 수 있는 최대 금액은 20만원입니다.");
+            throw new IllegalArgumentException(ErrorCode.MAXIMUM_CHARGE_LIMIT_EXCEEDED.getMessage());
         }
     }
 

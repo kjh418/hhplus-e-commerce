@@ -1,5 +1,6 @@
 package hhplus.ecommerce.application.order;
 
+import hhplus.ecommerce.application.common.ErrorCode;
 import hhplus.ecommerce.application.order.dto.OrderDetailRequest;
 import hhplus.ecommerce.application.order.dto.OrderDetailResponse;
 import hhplus.ecommerce.application.order.dto.OrderRequest;
@@ -40,7 +41,7 @@ public class OrderService {
 
         // 주문 생성 및 상세 정보 처리
         List<OrderDetailResponse> orderDetailResponses = new ArrayList<>();
-        BigDecimal totalAmount = processOrderDetails(request.getOrderDetails(), orderDetailResponses);
+        BigDecimal totalAmount = calculateTotalAmount(request.getOrderDetails(), orderDetailResponses);
 
         Orders orders = saveOrder(user.getId(), totalAmount);
 
@@ -51,47 +52,13 @@ public class OrderService {
 
     private Users findUserById(Long userId) {
         return usersRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("사용자가 존재하지 않습니다."));
-    }
-
-    private BigDecimal processOrderDetails(List<OrderDetailRequest> orderDetails, List<OrderDetailResponse> orderDetailResponses) {
-        BigDecimal totalAmount = BigDecimal.ZERO;
-
-        for (OrderDetailRequest detailRequest : orderDetails) {
-            Product product = productRepository.findById(detailRequest.getProductId())
-                    .orElseThrow(() -> new EntityNotFoundException("상품이 존재하지 않습니다."));
-
-            reduceStock(product, detailRequest.getQuantity());
-
-            BigDecimal productTotalPrice = product.getPrice().multiply(BigDecimal.valueOf(detailRequest.getQuantity()));
-            totalAmount = totalAmount.add(productTotalPrice);
-
-            OrderDetailResponse detailResponse = new OrderDetailResponse(
-                    product.getId(), detailRequest.getQuantity(), product.getPrice()
-            );
-            orderDetailResponses.add(detailResponse);
-        }
-
-        return totalAmount;
-    }
-
-    private void reduceStock(Product product, int quantity) {
-        if (product.getStockQuantity() < quantity) {
-            throw new IllegalStateException("재고가 부족합니다.");
-        }
-        product.reduceStock(quantity);
-        productRepository.save(product);
-    }
-
-    private Orders saveOrder(Long userId, BigDecimal totalAmount) {
-        Orders orders = new Orders(userId, totalAmount, OrderStatus.PENDING, LocalDateTime.now());
-        return orderRepository.save(orders);
+                .orElseThrow(() -> new EntityNotFoundException(ErrorCode.USER_NOT_FOUND.getMessage()));
     }
 
     private void saveOrderDetails(Orders orders, List<OrderDetailRequest> orderDetails) {
         for (OrderDetailRequest detailRequest : orderDetails) {
             Product product = productRepository.findById(detailRequest.getProductId())
-                    .orElseThrow(() -> new EntityNotFoundException("상품이 존재하지 않습니다."));
+                    .orElseThrow(() -> new EntityNotFoundException(ErrorCode.PRODUCT_NOT_FOUND.getMessage()));
 
             OrdersDetail ordersDetail = new OrdersDetail(
                     orders.getId(),
@@ -100,8 +67,40 @@ public class OrderService {
                     product.getPrice()
             );
 
+            // 주문 상세 저장
             ordersDetailRepository.save(ordersDetail);
         }
+    }
+
+    private BigDecimal calculateTotalAmount(List<OrderDetailRequest> orderDetails, List<OrderDetailResponse> orderDetailResponses) {
+        BigDecimal totalAmount = BigDecimal.ZERO;
+
+        for (OrderDetailRequest detailRequest : orderDetails) {
+            Product product = productRepository.findById(detailRequest.getProductId())
+                    .orElseThrow(() -> new EntityNotFoundException(ErrorCode.PRODUCT_NOT_FOUND.getMessage()));
+
+            // 재고 확인 및 감소
+            product.reduceStock(detailRequest.getQuantity());
+
+            // 주문 상세 정보 추가
+            BigDecimal productTotalPrice = product.getPrice().multiply(BigDecimal.valueOf(detailRequest.getQuantity()));
+            totalAmount = totalAmount.add(productTotalPrice);
+
+            // 주문 상세 내역 저장
+            OrderDetailResponse detailResponse = new OrderDetailResponse(
+                    product.getId(), detailRequest.getQuantity(), product.getPrice()
+            );
+            orderDetailResponses.add(detailResponse);
+
+            productRepository.save(product);
+        }
+
+        return totalAmount;
+    }
+
+    private Orders saveOrder(Long userId, BigDecimal totalAmount) {
+        Orders orders = new Orders(userId, totalAmount, OrderStatus.PENDING, LocalDateTime.now());
+        return orderRepository.save(orders);
     }
 
     private OrderResponse buildOrderResponse(Orders orders, List<OrderDetailResponse> orderDetailResponses) {

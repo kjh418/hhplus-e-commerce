@@ -1,11 +1,13 @@
 package hhplus.ecommerce.application.product;
 
+import hhplus.ecommerce.application.common.ErrorCode;
 import hhplus.ecommerce.application.product.dto.ProductDetailDto;
 import hhplus.ecommerce.application.product.dto.ProductListDto;
 import hhplus.ecommerce.application.product.dto.TopProductResponse;
 import hhplus.ecommerce.domain.product.Product;
 import hhplus.ecommerce.infrastructure.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -13,6 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ProductService {
 
     private final ProductRepository productRepository;
@@ -24,7 +27,7 @@ public class ProductService {
     }
 
     public ProductDetailDto getProductDetails(Long productId) {
-        Product product = productRepository.findById(productId).orElseThrow(() -> new EntityNotFoundException("상품이 존재하지 않습니다."));
+        Product product = productRepository.findById(productId).orElseThrow(() -> new EntityNotFoundException(ErrorCode.PRODUCT_NOT_FOUND.getMessage()));
 
         return new ProductDetailDto(product.getId(), product.getName(), product.getPrice(), product.getStockQuantity(), product.getDescription());
     }
@@ -38,9 +41,5 @@ public class ProductService {
         return topProducts.stream()
                 .limit(limit)
                 .collect(Collectors.toList());
-    }
-
-    public ProductService(ProductRepository productRepository) {
-        this.productRepository = productRepository;
     }
 }

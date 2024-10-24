@@ -7,9 +7,11 @@ import hhplus.ecommerce.application.user.dto.UserBalanceResponse;
 import hhplus.ecommerce.application.user.dto.UserDto;
 import hhplus.ecommerce.domain.order.OrderStatus;
 import hhplus.ecommerce.domain.order.Orders;
+import hhplus.ecommerce.domain.order.OrdersDetail;
 import hhplus.ecommerce.domain.payment.PaymentStatus;
 import hhplus.ecommerce.domain.product.Product;
 import hhplus.ecommerce.domain.user.Users;
+import hhplus.ecommerce.infrastructure.repository.OrdersDetailRepository;
 import hhplus.ecommerce.infrastructure.repository.OrdersRepository;
 import hhplus.ecommerce.infrastructure.repository.ProductRepository;
 import hhplus.ecommerce.infrastructure.repository.UsersRepository;
@@ -42,6 +44,9 @@ class OrderServiceTest {
 
     @Mock
     private ProductRepository productRepository;
+
+    @Mock
+    private OrdersDetailRepository ordersDetailRepository;
 
     @Test
     void 존재하지_않는_상품을_주문하는_경우_예외_발생() {
@@ -114,8 +119,9 @@ class OrderServiceTest {
         Orders order = new Orders(1L, user.getId(), new BigDecimal("20000"), OrderStatus.PENDING, LocalDateTime.now());
         when(ordersRepository.save(any(Orders.class))).thenReturn(order);
 
+        when(ordersDetailRepository.save(any())).thenReturn(new OrdersDetail());
         OrderResponse orderResponse = orderService.createOrder(request);
-
+        
         assertNotNull(orderResponse);
         assertEquals(PaymentStatus.PENDING, orderResponse.getPaymentStatus());
         assertEquals(new BigDecimal("20000"), orderResponse.getTotalAmount());
