@@ -1,9 +1,6 @@
 package hhplus.ecommerce.domain.payment;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,7 +19,15 @@ public class PointAccount {
     private Long userId;
     private BigDecimal balance; // 포인트 잔액
 
+    @Version
+    private Long version;
+
     public void updateBalance(BigDecimal newBalance) {
         this.balance = newBalance;
+    }
+
+    public PointAccount(Long id, Long userId, BigDecimal balance) {
+        this.userId = userId;
+        this.balance = balance;
     }
 }
