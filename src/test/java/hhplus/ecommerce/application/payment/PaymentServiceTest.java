@@ -1,5 +1,6 @@
 package hhplus.ecommerce.application.payment;
 
+import hhplus.ecommerce.application.common.ErrorCode;
 import hhplus.ecommerce.application.payment.dto.PaymentResponse;
 import hhplus.ecommerce.domain.order.OrderStatus;
 import hhplus.ecommerce.domain.order.Orders;
@@ -66,10 +67,10 @@ class PaymentServiceTest {
 
         PaymentResponse response = paymentService.processPayment(orderId, userId, paymentAmount);
 
-        assertEquals("포인트가 부족합니다.", response.getMessage());
+        // ErrorCode를 사용하여 메시지를 비교
+        assertEquals(ErrorCode.INSUFFICIENT_BALANCE.getMessage(), response.getMessage());
         assertEquals(PaymentStatus.FAILED, response.getStatus());
-
-        // 이력 저장 확인
+        
         verify(paymentRepository).save(any(Payment.class));
     }
 
@@ -82,7 +83,7 @@ class PaymentServiceTest {
             paymentService.processPayment(orderId, userId, paymentAmount);
         });
 
-        assertEquals("주문을 찾을 수 없습니다.", exception.getMessage());
+        assertEquals(ErrorCode.ORDER_NOT_FOUND.getMessage(), exception.getMessage());
     }
 
     @Test
@@ -93,7 +94,7 @@ class PaymentServiceTest {
             paymentService.processPayment(orderId, userId, paymentAmount);
         });
 
-        assertEquals("사용자를 찾을 수 없습니다.", exception.getMessage());
+        assertEquals(ErrorCode.USER_NOT_FOUND.getMessage(), exception.getMessage());
     }
 
     @Test
@@ -106,7 +107,7 @@ class PaymentServiceTest {
             paymentService.processPayment(orderId, userId, paymentAmount);
         });
 
-        assertEquals("이미 결제가 완료된 주문입니다.", exception.getMessage());
+        assertEquals(ErrorCode.ORDER_ALREADY_COMPLETED.getMessage(), exception.getMessage());
     }
 
     @Test
@@ -119,6 +120,6 @@ class PaymentServiceTest {
             paymentService.processPayment(orderId, userId, paymentAmount);
         });
 
-        assertEquals("결제 금액이 주문 금액과 일치하지 않습니다.", exception.getMessage());
+        assertEquals(ErrorCode.PAYMENT_AMOUNT_MISMATCH.getMessage(), exception.getMessage());
     }
 }
