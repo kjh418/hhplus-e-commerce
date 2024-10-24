@@ -3,7 +3,7 @@ package hhplus.ecommerce.application.product;
 import hhplus.ecommerce.application.common.ErrorCode;
 import hhplus.ecommerce.application.product.dto.ProductDetailDto;
 import hhplus.ecommerce.application.product.dto.ProductListDto;
-import hhplus.ecommerce.application.product.dto.Top5ProductResponse;
+import hhplus.ecommerce.application.product.dto.TopProductResponse;
 import hhplus.ecommerce.domain.product.Product;
 import hhplus.ecommerce.infrastructure.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -32,17 +32,14 @@ public class ProductService {
         return new ProductDetailDto(product.getId(), product.getName(), product.getPrice(), product.getStockQuantity(), product.getDescription());
     }
 
-    public List<Top5ProductResponse> getTop5Products() {
-        LocalDateTime threeDaysAgo = LocalDateTime.now().minusDays(3);
-        List<Product> topProducts = productRepository.findTop5BySales(threeDaysAgo);
+    public List<TopProductResponse> getTopProducts(int days, int limit) {
+        LocalDateTime endDate = LocalDateTime.now(); // 현재 날짜
+        LocalDateTime startDate = endDate.minusDays(days);
+
+        List<TopProductResponse> topProducts = productRepository.findTopBySales(startDate, endDate);
 
         return topProducts.stream()
-                .map(product -> new Top5ProductResponse(
-                        product.getId(),
-                        product.getName(),
-                        product.getPrice(),
-                        product.getTotalSales()
-                ))
+                .limit(limit)
                 .collect(Collectors.toList());
     }
 }

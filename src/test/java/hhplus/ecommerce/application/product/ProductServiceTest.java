@@ -2,7 +2,7 @@ package hhplus.ecommerce.application.product;
 
 import hhplus.ecommerce.application.product.dto.ProductDetailDto;
 import hhplus.ecommerce.application.product.dto.ProductListDto;
-import hhplus.ecommerce.application.product.dto.Top5ProductResponse;
+import hhplus.ecommerce.application.product.dto.TopProductResponse;
 import hhplus.ecommerce.domain.product.Product;
 import hhplus.ecommerce.infrastructure.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
@@ -84,16 +85,20 @@ class ProductServiceTest {
 
     @Test
     void 상위_5개_상품_조회_성공() {
-        LocalDateTime threeDaysAgo = LocalDateTime.now().minusDays(3);
+        LocalDateTime.now().minusDays(3);
+
         Product product1 = new Product(1L, "청바지", "사계절 내내 입을 수 있는 청바지", new BigDecimal("50000"), 10, LocalDateTime.now(), 15);
         Product product2 = new Product(2L, "맨투맨", "편안한 맨투맨", new BigDecimal("39000"), 15, LocalDateTime.now(), 20);
 
-        when(productRepository.findTop5BySales(threeDaysAgo)).thenReturn(List.of(product1, product2));
+        when(productRepository.findTopBySales(Mockito.any(LocalDateTime.class), Mockito.any(LocalDateTime.class)))
+                .thenReturn(List.of(new TopProductResponse(product1.getId(), product1.getName(), product1.getPrice(), product1.getTotalSales()),
+                        new TopProductResponse(product2.getId(), product2.getName(), product2.getPrice(), product2.getTotalSales())));
 
-        List<Top5ProductResponse> result = productService.getTop5Products();
+        List<TopProductResponse> result = productService.getTopProducts(3, 5);
 
         assertEquals(2, result.size());
         assertEquals("청바지", result.get(0).getName());
         assertEquals(15, result.get(0).getTotalSales());
     }
+
 }

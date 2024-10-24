@@ -4,6 +4,8 @@ import hhplus.ecommerce.domain.cart.Cart;
 import hhplus.ecommerce.domain.cart.CartItem;
 import hhplus.ecommerce.infrastructure.repository.CartItemRepository;
 import hhplus.ecommerce.infrastructure.repository.CartRepository;
+import hhplus.ecommerce.infrastructure.repository.ProductRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +21,7 @@ public class CartService {
 
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
+    private final ProductRepository productRepository;
 
     public Cart getCartByUserId(Long userId) {
         return cartRepository.findByUserId(userId)
@@ -31,6 +34,9 @@ public class CartService {
 
     @Transactional
     public void addItemToCart(Long userId, Long productId, int quantity, boolean isSelected) {
+        productRepository.findById(productId)
+                .orElseThrow(() -> new EntityNotFoundException("상품이 존재하지 않습니다."));
+
         Cart cart = getCartByUserId(userId);
         Optional<CartItem> existingItemOpt = cartItemRepository.findByCartIdAndProductId(cart.getId(), productId);
 
@@ -40,6 +46,20 @@ public class CartService {
             cartItemRepository.save(existingItem);
         } else {
             CartItem cartItem = new CartItem(cart.getId(), productId, quantity, isSelected, LocalDateTime.now());
+            cartItemRepository.save(cartItem);
+        }
+    }
+
+    @Transactional
+    public void updateItemQuantity(Long userId, Long productId, int newQuantity) {
+        Cart cart = getCartByUserId(userId);
+        CartItem cartItem = cartItemRepository.findByCartIdAndProductId(cart.getId(), productId)
+                .orElseThrow(() -> new NoSuchElementException("장바구니에 해당 상품이 없습니다."));
+
+        if (newQuantity < 1) {
+            throw new IllegalStateException("수량은 1 이하로 줄일 수 없습니다.");
+        } else {
+            cartItem.updateQuantity(newQuantity);
             cartItemRepository.save(cartItem);
         }
     }
