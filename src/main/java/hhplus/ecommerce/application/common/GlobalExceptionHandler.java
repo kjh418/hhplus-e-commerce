@@ -15,15 +15,17 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<ErrorResponse> handleNoSuchElementException(NoSuchElementException ex) {
         log.error("User error: {}", ex.getMessage());
-        ErrorResponse errorResponse = new ErrorResponse(ErrorCode.USER_NOT_FOUND.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        ErrorCode errorCode = ErrorCode.USER_NOT_FOUND;
+        ErrorResponse errorResponse = new ErrorResponse(errorCode);
+        return ResponseEntity.status(errorCode.getStatus()).body(errorResponse);
     }
-
+    
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
         log.warn("Input error: {}", ex.getMessage());
-        ErrorResponse errorResponse = new ErrorResponse(ErrorCode.PAYMENT_FAILED.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        ErrorCode errorCode = ErrorCode.PAYMENT_FAILED;
+        ErrorResponse errorResponse = new ErrorResponse(errorCode);
+        return ResponseEntity.status(errorCode.getStatus()).body(errorResponse);
     }
 
     @ExceptionHandler(NullPointerException.class)
