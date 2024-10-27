@@ -86,7 +86,7 @@ public class PaymentService {
 
     private void validateOrderForPayment(Orders order, BigDecimal paymentAmount) {
         if (order.getStatus() == OrderStatus.COMPLETED) {
-            throw new IllegalStateException(ErrorCode.ORDER_ALREADY_COMPLETED.getMessage());
+            throw new IllegalStateException(ErrorCode.DUPLICATE_REQUEST.getMessage());
         }
 
         if (order.getTotalAmount().compareTo(paymentAmount) != 0) {

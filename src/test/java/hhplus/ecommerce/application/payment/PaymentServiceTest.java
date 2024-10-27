@@ -70,7 +70,7 @@ class PaymentServiceTest {
         // ErrorCode를 사용하여 메시지를 비교
         assertEquals(ErrorCode.INSUFFICIENT_BALANCE.getMessage(), response.getMessage());
         assertEquals(PaymentStatus.FAILED, response.getStatus());
-        
+
         verify(paymentRepository).save(any(Payment.class));
     }
 
@@ -107,7 +107,7 @@ class PaymentServiceTest {
             paymentService.processPayment(orderId, userId, paymentAmount);
         });
 
-        assertEquals(ErrorCode.ORDER_ALREADY_COMPLETED.getMessage(), exception.getMessage());
+        assertEquals(ErrorCode.DUPLICATE_REQUEST.getMessage(), exception.getMessage());
     }
 
     @Test
