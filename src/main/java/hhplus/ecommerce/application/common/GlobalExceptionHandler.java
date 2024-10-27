@@ -2,6 +2,7 @@ package hhplus.ecommerce.application.common;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -19,13 +20,26 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = new ErrorResponse(errorCode);
         return ResponseEntity.status(errorCode.getStatus()).body(errorResponse);
     }
-    
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
         log.warn("Input error: {}", ex.getMessage());
         ErrorCode errorCode = ErrorCode.PAYMENT_FAILED;
         ErrorResponse errorResponse = new ErrorResponse(errorCode);
         return ResponseEntity.status(errorCode.getStatus()).body(errorResponse);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalStateException(IllegalStateException ex) {
+        if (ErrorCode.DUPLICATE_REQUEST.getMessage().equals(ex.getMessage())) {
+            log.warn("Duplicate request error: {}", ex.getMessage());
+            ErrorResponse errorResponse = new ErrorResponse(ErrorCode.DUPLICATE_REQUEST);
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(errorResponse);
+        }
+
+        throw ex;
     }
 
     @ExceptionHandler(NullPointerException.class)
@@ -37,8 +51,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
-        log.error("Unexpected error occurred: {}", ex.getMessage());
-        ErrorResponse errorResponse = new ErrorResponse("An unknown error occurred.");
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        log.error("Unexpected error: {}", ex.getMessage());
+        ErrorResponse errorResponse = new ErrorResponse(ErrorCode.GENERIC_SERVER_ERROR);
+        return ResponseEntity.status(ErrorCode.GENERIC_SERVER_ERROR.getStatus())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(errorResponse);
     }
 }
