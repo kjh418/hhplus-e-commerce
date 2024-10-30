@@ -4,15 +4,19 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.regex.Pattern;
 
+
 @Component
 public class XSSFilter implements Filter {
-    private static final Pattern XSS_PATTERN = Pattern.compile("<.*?>|<script.*?>|\"|'|%3C|%3E|%27|%22|javascript:", Pattern.CASE_INSENSITIVE);
+    private static final Pattern XSS_PATTERN = Pattern.compile("<.*?>|<script.*?>|\"|'|%3C|%3E|%27|%22|javascript:|onerror|onclick", Pattern.CASE_INSENSITIVE);
+    private static final Logger logger = LoggerFactory.getLogger(XSSFilter.class);
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
@@ -22,7 +26,9 @@ public class XSSFilter implements Filter {
         HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
 
         if (containsXSS(httpRequest.getRequestURI()) || containsXSSInParameters(httpRequest) || containsXSSInHeaders(httpRequest)) {
-            httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid input detected.");
+            logger.warn("XSS 감지. 요청 URI={}, 파라미터={}, 헤더={}",
+                    httpRequest.getRequestURI(), httpRequest.getParameterMap(), Collections.list(httpRequest.getHeaderNames()));
+            httpResponse.sendError(HttpServletResponse.SC_BAD_REQUEST, "유효하지 않은 입력이 감지되었습니다.");
             return;
         }
 
@@ -40,12 +46,10 @@ public class XSSFilter implements Filter {
     }
 
     private boolean containsXSSInHeaders(HttpServletRequest request) {
-        return Collections.list(request.getHeaderNames()).stream()
-                .map(request::getHeader)
-                .anyMatch(this::containsXSS);
+        return Collections.list(request.getHeaderNames()).stream().anyMatch(name -> containsXSS(name) || containsXSS(request.getHeader(name)));
     }
 
-    private static class XSSRequestWrapper extends HttpServletRequestWrapper {
+    protected static class XSSRequestWrapper extends HttpServletRequestWrapper {
 
         public XSSRequestWrapper(HttpServletRequest request) {
             super(request);
