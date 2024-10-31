@@ -13,7 +13,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -87,5 +92,46 @@ public class OrderUseCaseIntegrationTest {
         Product updatedProduct2 = productRepository.findById(product2.getId()).orElse(null);
         assertNotNull(updatedProduct2);
         assertThat(updatedProduct2.getStockQuantity()).isEqualTo(49);
+    }
+
+    @Test
+    public void 재고가_10개_남아_있을_떄_20명의_이용자가_동시에_구매시도_시_10명만_성공() throws InterruptedException {
+        List<OrderDetailRequest> orderDetails = List.of(
+                new OrderDetailRequest(product1.getId(), 1)
+        );
+
+        OrderRequest orderRequest = new OrderRequest(userId, orderDetails);
+
+        int numberOfUsers = 20;
+        ExecutorService executorService = Executors.newFixedThreadPool(numberOfUsers);
+        CountDownLatch latch = new CountDownLatch(numberOfUsers);
+
+        List<String> results = Collections.synchronizedList(new ArrayList<>());
+
+        for (int i = 0; i < numberOfUsers; i++) {
+            executorService.submit(() -> {
+                try {
+                    OrderResponse response = orderUseCase.createOrder(orderRequest);
+                    results.add("구매 성공");
+                } catch (Exception e) {
+                    results.add("구매 실패: 재고 부족");
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        latch.await();
+        executorService.shutdown();
+
+        long successCount = results.stream().filter(result -> result.equals("구매 성공")).count();
+        long failureCount = results.stream().filter(result -> result.equals("구매 실패: 재고 부족")).count();
+
+        assertEquals(10, successCount);
+        assertEquals(10, failureCount);
+
+        Product updatedProduct = productRepository.findById(product1.getId()).orElse(null);
+        assertNotNull(updatedProduct);
+        assertThat(updatedProduct.getStockQuantity()).isEqualTo(0);
     }
 }
