@@ -42,44 +42,44 @@ public class PaymentService {
         // 주문 확인
         Orders order = getOrderOrThrow(orderId);
 
-        // 결제 상태, 금액 확인
-        validateOrderForPayment(order, paymentAmount);
-
         // 포인트 잔액 확인
         BigDecimal currentPoints = getCurrentPoints(user.getId());
 
-        // 포인트 잔액 확인, 결제 처리
-        return handlePayment(userId, order, paymentAmount, currentPoints);
-    }
-
-    private PaymentResponse handlePayment(Long userId, Orders order, BigDecimal paymentAmount, BigDecimal currentPoints) {
-
+        // 포인트 잔액 부족 시 바로 결제 실패 처리
         if (currentPoints == null || currentPoints.compareTo(paymentAmount) < 0) {
-            saveFailedPayment(userId, order.getId(), paymentAmount);
-            return new PaymentResponse(ErrorCode.INSUFFICIENT_BALANCE.getMessage(), PaymentStatus.FAILED);
+            return handleInsufficientBalance(userId, orderId, paymentAmount);
         }
 
-        // 성공적인 결제 기록만 PointType에 기록
+        // 결제 상태 및 금액 확인
+        validateOrderForPayment(order, paymentAmount);
+
+        // 결제 성공 처리
+        return handleSuccessfulPayment(userId, order, paymentAmount, currentPoints);
+    }
+
+    private PaymentResponse handleSuccessfulPayment(Long userId, Orders order, BigDecimal paymentAmount, BigDecimal currentPoints) {
+        // 결제 성공 기록 추가
         saveSuccessfulPaymentHistory(userId, order.getId(), paymentAmount);
         processSuccessfulPayment(userId, order, paymentAmount, currentPoints);
+
         return new PaymentResponse("결제가 완료되었습니다.", PaymentStatus.SUCCESS);
     }
 
-    private void saveFailedPayment(Long userId, Long orderId, BigDecimal paymentAmount) {
+    private PaymentResponse handleInsufficientBalance(Long userId, Long orderId, BigDecimal paymentAmount) {
         Payment failedPayment = new Payment(userId, orderId, paymentAmount, PaymentStatus.FAILED, LocalDateTime.now());
         paymentRepository.save(failedPayment);
 
-        Orders order = getOrderOrThrow(orderId);
-        order.cancelOrder();
-        orderRepository.save(order);
+        return new PaymentResponse(ErrorCode.INSUFFICIENT_BALANCE.getMessage(), PaymentStatus.FAILED);
     }
 
     private Users getUserOrThrow(Long userId) {
-        return usersRepository.findById(userId).orElseThrow(() -> new NoSuchElementException(ErrorCode.USER_NOT_FOUND.getMessage()));
+        return usersRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException(ErrorCode.USER_NOT_FOUND.getMessage()));
     }
 
     private Orders getOrderOrThrow(Long orderId) {
-        return orderRepository.findById(orderId).orElseThrow(() -> new NoSuchElementException(ErrorCode.ORDER_NOT_FOUND.getMessage()));
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new NoSuchElementException(ErrorCode.ORDER_NOT_FOUND.getMessage()));
     }
 
     private void validateOrderForPayment(Orders order, BigDecimal paymentAmount) {
