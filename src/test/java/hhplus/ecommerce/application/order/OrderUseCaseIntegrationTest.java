@@ -8,7 +8,6 @@ import hhplus.ecommerce.domain.user.Users;
 import hhplus.ecommerce.infrastructure.repository.OrdersRepository;
 import hhplus.ecommerce.infrastructure.repository.ProductRepository;
 import hhplus.ecommerce.infrastructure.repository.UsersRepository;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -114,7 +113,7 @@ public class OrderUseCaseIntegrationTest {
 
     @Test
     public void 재고가_10개_남아_있을_때_20명의_이용자가_동시에_구매_시도_시_10명만_성공() throws InterruptedException {
-        
+
         int numberOfUsers = 20;
         ExecutorService executorService = Executors.newFixedThreadPool(numberOfUsers);
         CountDownLatch latch = new CountDownLatch(numberOfUsers);
@@ -140,11 +139,11 @@ public class OrderUseCaseIntegrationTest {
         latch.await();
         executorService.shutdown();
 
-        Assertions.assertEquals(10, successCount.get());
-        Assertions.assertEquals(10, failureCount.get());
+        assertEquals(10, successCount.get());
+        assertEquals(10, failureCount.get());
 
         Product updatedProduct = productRepository.findById(product1.getId()).orElse(null);
-        Assertions.assertNotNull(updatedProduct);
-        Assertions.assertEquals(0, updatedProduct.getStockQuantity());
+        assertNotNull(updatedProduct);
+        assertEquals(0, updatedProduct.getStockQuantity());
     }
 }
