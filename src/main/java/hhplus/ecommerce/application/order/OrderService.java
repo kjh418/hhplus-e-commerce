@@ -57,7 +57,7 @@ public class OrderService {
 
     private void saveOrderDetails(Orders orders, List<OrderDetailRequest> orderDetails) {
         for (OrderDetailRequest detailRequest : orderDetails) {
-            Product product = productRepository.findById(detailRequest.getProductId())
+            Product product = productRepository.findByIdForUpdate(detailRequest.getProductId())
                     .orElseThrow(() -> new EntityNotFoundException(ErrorCode.PRODUCT_NOT_FOUND.getMessage()));
 
             OrdersDetail ordersDetail = new OrdersDetail(
@@ -76,7 +76,7 @@ public class OrderService {
         BigDecimal totalAmount = BigDecimal.ZERO;
 
         for (OrderDetailRequest detailRequest : orderDetails) {
-            Product product = productRepository.findById(detailRequest.getProductId())
+            Product product = productRepository.findByIdForUpdate(detailRequest.getProductId()) // 비관적 락 적용
                     .orElseThrow(() -> new EntityNotFoundException(ErrorCode.PRODUCT_NOT_FOUND.getMessage()));
 
             // 재고 확인 및 감소
