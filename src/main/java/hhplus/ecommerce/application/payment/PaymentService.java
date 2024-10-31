@@ -12,9 +12,7 @@ import hhplus.ecommerce.domain.payment.PointType;
 import hhplus.ecommerce.domain.product.Product;
 import hhplus.ecommerce.domain.user.Users;
 import hhplus.ecommerce.infrastructure.repository.*;
-import jakarta.persistence.LockModeType;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,7 +46,7 @@ public class PaymentService {
         validateOrderForPayment(order, paymentAmount);
 
         // 포인트 잔액 확인
-        BigDecimal currentPoints = getCurrentPointsWithLock(user.getId());
+        BigDecimal currentPoints = getCurrentPoints(user.getId());
 
         // 포인트 잔액 확인, 결제 처리
         return handlePayment(userId, order, paymentAmount, currentPoints);
@@ -94,9 +92,7 @@ public class PaymentService {
         }
     }
 
-    // 비관적 락
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    public BigDecimal getCurrentPointsWithLock(Long userId) {
+    public BigDecimal getCurrentPoints(Long userId) {
         return userPointRepository.findCurrentPointsByUserId(userId);
     }
 
@@ -107,7 +103,7 @@ public class PaymentService {
 
     private void processSuccessfulPayment(Long userId, Orders order, BigDecimal paymentAmount, BigDecimal currentPoints) {
         BigDecimal newBalance = currentPoints.subtract(paymentAmount);
-        updatePointsWithLock(userId, newBalance);
+        updatePoints(userId, newBalance);
 
         List<OrdersDetail> orderDetails = ordersDetailRepository.findByOrderId(order.getId());
         for (OrdersDetail detail : orderDetails) {
@@ -125,9 +121,7 @@ public class PaymentService {
         paymentRepository.save(payment); // 결제 기록 저장
     }
 
-    // 비관적 락
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    public void updatePointsWithLock(Long userId, BigDecimal newBalance) {
+    public void updatePoints(Long userId, BigDecimal newBalance) {
         userPointRepository.updatePoints(userId, newBalance);
     }
 }
