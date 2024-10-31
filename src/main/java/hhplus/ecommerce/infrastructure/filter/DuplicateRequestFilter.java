@@ -1,17 +1,23 @@
 package hhplus.ecommerce.infrastructure.filter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import hhplus.ecommerce.application.common.ErrorCode;
+import hhplus.ecommerce.application.common.ErrorResponse;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.MediaType;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.io.PrintWriter;
+import java.util.concurrent.TimeUnit;
 
 public class DuplicateRequestFilter implements Filter {
 
-    private final Map<String, Long> requestCache = new ConcurrentHashMap<>(); // ConcurrentHashMap으로 변경
     private static final long TIME_LIMIT = 500; // 0.5초 시간 제한
+    private final Cache<String, Long> requestCache = Caffeine.newBuilder().expireAfterWrite(TIME_LIMIT, TimeUnit.MILLISECONDS).build();
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
@@ -19,22 +25,34 @@ public class DuplicateRequestFilter implements Filter {
 
         HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
         HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
-
         String token = httpRequest.getHeader("Request-Token");
 
+        System.out.println("Request-Token: " + token);
+
         if (token == null || token.isEmpty()) {
-            filterChain.doFilter(servletRequest, servletResponse); // 토큰이 없을 때는 그대로 통과
+            filterChain.doFilter(servletRequest, servletResponse);
             return;
         }
 
         long currentTime = System.currentTimeMillis();
-        Long lastRequestTime = requestCache.get(token);
+        Long lastRequestTime = requestCache.getIfPresent(token);
 
         if (lastRequestTime != null && (currentTime - lastRequestTime) < TIME_LIMIT) {
-            httpResponse.sendError(HttpServletResponse.SC_CONFLICT, "Duplicate request detected");
+            ErrorCode errorCode = ErrorCode.DUPLICATE_REQUEST;
+            ErrorResponse errorResponse = new ErrorResponse(errorCode);
+
+            String jsonResponse = new ObjectMapper().writeValueAsString(errorResponse);
+            httpResponse.setStatus(HttpServletResponse.SC_CONFLICT);
+            httpResponse.setContentType(MediaType.APPLICATION_JSON_VALUE);
+
+            try (PrintWriter writer = httpResponse.getWriter()) {
+                writer.write(jsonResponse);
+                writer.flush();
+            }
             return;
         }
 
+        // 요청 캐시 업데이트
         requestCache.put(token, currentTime);
         filterChain.doFilter(servletRequest, servletResponse);
     }

@@ -6,7 +6,6 @@ import hhplus.ecommerce.application.user.dto.UserBalanceResponse;
 import hhplus.ecommerce.domain.payment.PaymentHistory;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,8 +28,8 @@ public class AccountPointController {
     public ResponseEntity<UserBalanceResponse> chargePoints(
             @PathVariable Long userId,
             @Valid @RequestBody PaymentDto paymentDto) {
-        UserBalanceResponse response = accountPointService.chargePoints(userId, paymentDto, paymentDto.getOrderId());
-        return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(response);
+        UserBalanceResponse response = accountPointService.chargePoints(userId, paymentDto, null);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{userId}/history")

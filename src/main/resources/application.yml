@@ -1,11 +1,9 @@
 spring:
-  application:
-    name: hhplus-ecommerce
   datasource:
-    url: "jdbc:h2:~/hhplus-ecommerce;MODE=MYSQL;NON_KEYWORDS=USER"
-    username: "sa"
-    password: ""
-    driver-class-name: org.h2.Driver
+    url: jdbc:mysql://localhost:3306/hhplus_ecommerce?serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+    username: hhplus
+    password: hhplus
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: update
@@ -13,11 +11,10 @@ spring:
         hibernate:
           show_sql: true
           format_sql: true
-          dialect: org.hibernate.dialect.MySQLDialect
+          dialect: org.hibernate.dialect.MySQL8Dialect
     show-sql: true
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-    settings:
-      web-allow-others: true
+
+logging:
+  level:
+    org.hibernate.SQL: WARN
+    org.hibernate.type.descriptor.sql.BasicBinder: WARN
