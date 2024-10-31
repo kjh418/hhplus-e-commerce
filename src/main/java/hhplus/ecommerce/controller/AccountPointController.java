@@ -28,7 +28,7 @@ public class AccountPointController {
     public ResponseEntity<UserBalanceResponse> chargePoints(
             @PathVariable Long userId,
             @Valid @RequestBody PaymentDto paymentDto) {
-        UserBalanceResponse response = accountPointService.chargePoints(userId, paymentDto, paymentDto.getOrderId());
+        UserBalanceResponse response = accountPointService.chargePoints(userId, paymentDto, null);
         return ResponseEntity.ok(response);
     }
 
