@@ -1,9 +1,6 @@
 package hhplus.ecommerce.domain.product;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,7 +18,7 @@ import java.time.LocalDateTime;
 @Builder
 public class Product {
     private static final Logger logger = LoggerFactory.getLogger(Product.class);
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -37,6 +34,19 @@ public class Product {
     private LocalDateTime createdAt;
 
     private int totalSales;
+
+    @Version
+    private Integer version;
+
+    public Product(Long id, String name, String description, BigDecimal price, int stockQuantity, LocalDateTime createdAt, int totalSales) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.price = price;
+        this.stockQuantity = stockQuantity;
+        this.createdAt = createdAt;
+        this.totalSales = totalSales;
+    }
 
     public void reduceStock(int quantity) {
         if (this.stockQuantity < quantity) {
