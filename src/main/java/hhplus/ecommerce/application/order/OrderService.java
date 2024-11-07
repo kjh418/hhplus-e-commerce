@@ -17,6 +17,7 @@ import hhplus.ecommerce.infrastructure.repository.ProductRepository;
 import hhplus.ecommerce.infrastructure.repository.UsersRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.orm.jpa.JpaOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,18 +37,22 @@ public class OrderService {
 
     @Transactional
     public OrderResponse createOrder(OrderRequest request) {
-        // 사용자 정보 조회
-        Users user = findUserById(request.getUserId());
+        try {
+            // 사용자 정보 조회
+            Users user = findUserById(request.getUserId());
 
-        // 주문 생성 및 상세 정보 처리
-        List<OrderDetailResponse> orderDetailResponses = new ArrayList<>();
-        BigDecimal totalAmount = calculateTotalAmount(request.getOrderDetails(), orderDetailResponses);
+            // 주문 생성 및 상세 정보 처리
+            List<OrderDetailResponse> orderDetailResponses = new ArrayList<>();
+            BigDecimal totalAmount = calculateTotalAmount(request.getOrderDetails(), orderDetailResponses);
 
-        Orders orders = saveOrder(user.getId(), totalAmount);
+            Orders orders = saveOrder(user.getId(), totalAmount);
 
-        saveOrderDetails(orders, request.getOrderDetails());
+            saveOrderDetails(orders, request.getOrderDetails());
 
-        return buildOrderResponse(orders, orderDetailResponses);
+            return buildOrderResponse(orders, orderDetailResponses);
+        } catch (JpaOptimisticLockingFailureException e) {
+            throw new IllegalStateException("동시성 충돌이 발생했습니다. 다시 시도해 주세요.", e);
+        }
     }
 
     private Users findUserById(Long userId) {
@@ -76,7 +81,7 @@ public class OrderService {
         BigDecimal totalAmount = BigDecimal.ZERO;
 
         for (OrderDetailRequest detailRequest : orderDetails) {
-            Product product = productRepository.findByIdForUpdate(detailRequest.getProductId()) // 비관적 락 적용
+            Product product = productRepository.findById(detailRequest.getProductId())
                     .orElseThrow(() -> new EntityNotFoundException(ErrorCode.PRODUCT_NOT_FOUND.getMessage()));
 
             // 재고 확인 및 감소

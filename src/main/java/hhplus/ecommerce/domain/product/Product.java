@@ -1,9 +1,6 @@
 package hhplus.ecommerce.domain.product;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,7 +18,7 @@ import java.time.LocalDateTime;
 @Builder
 public class Product {
     private static final Logger logger = LoggerFactory.getLogger(Product.class);
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -38,6 +35,9 @@ public class Product {
 
     private int totalSales;
 
+    @Version
+    private Integer version;
+    
     public void reduceStock(int quantity) {
         if (this.stockQuantity < quantity) {
             logger.warn("재고 부족 발생 - 상품 ID: {}, 현재 재고: {}", this.id, this.stockQuantity);
