@@ -68,7 +68,6 @@ class DuplicateRequestFilterTest {
                         .param("paymentAmount", "100.00"))
                 .andExpect(status().isConflict())  // 중복 요청 시 409 응답을 기대
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))  // 응답이 JSON 형식인지 확인
-                .andExpect(jsonPath("$.message").value(ErrorCode.DUPLICATE_REQUEST.getMessage()))
-                .andExpect(jsonPath("$.errorCode").value(ErrorCode.DUPLICATE_REQUEST.getCode()));
+                .andExpect(jsonPath("$.message").value(ErrorCode.DUPLICATE_REQUEST.getMessage()));
     }
 }
