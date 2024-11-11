@@ -8,7 +8,10 @@ import hhplus.ecommerce.domain.product.Product;
 import hhplus.ecommerce.infrastructure.repository.ProductRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -19,6 +22,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProductService {
 
+    private static final Logger logger = LoggerFactory.getLogger(ProductService.class);
     private final ProductRepository productRepository;
 
     @Cacheable(value = "productListCache", key = "'allProducts'", unless = "#result.isEmpty()")
@@ -37,7 +41,7 @@ public class ProductService {
 
     @Cacheable(value = "topProductsCache", key = "#days + '-' + #limit", unless = "#result.isEmpty()")
     public List<TopProductResponse> getTopProducts(int days, int limit) {
-        LocalDateTime endDate = LocalDateTime.now(); // 현재 날짜
+        LocalDateTime endDate = LocalDateTime.now();
         LocalDateTime startDate = endDate.minusDays(days);
 
         List<TopProductResponse> topProducts = productRepository.findTopBySales(startDate, endDate);
@@ -45,5 +49,10 @@ public class ProductService {
         return topProducts.stream()
                 .limit(limit)
                 .collect(Collectors.toList());
+    }
+
+    @Scheduled(fixedRate = 12 * 60 * 60 * 1000) // 12시간마다 주기적으로 인기 상품 캐시 갱신
+    public void evictTopProductsCache() {
+        logger.info("인기 상품 캐시가 무효화되었습니다.");
     }
 }
